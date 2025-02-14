@@ -1,0 +1,14 @@
+{
+  "custom_sound": {
+    "sounds": ["kiss-mod:custom_sound"],
+    "category": "player"
+  },
+  "custom_sound1": {
+    "sounds": ["kiss-mod:custom_sound1"],
+    "category": "player"
+  },
+  "custom_sound2": {
+    "sounds": ["kiss-mod:custom_sound2"],
+    "category": "player"
+  }
+}
