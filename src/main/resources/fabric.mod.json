@@ -8,7 +8,7 @@
 		"chicken_awa","lceLantern"
 	],
 	"contact": {
-		"sources": "https://github.com/chicken-awa/kiss-mod-1.21"
+		"sources": "https://github.com/chicken-awa/kiss-mod"
 	},
 	"license": "MIT",
 	"icon": "assets/kiss-mod/icon.png",
