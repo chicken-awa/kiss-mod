@@ -1,0 +1,4 @@
+name: KissMod
+version: '0.5'
+main: org.kissmod.kissMod.KissModPlugin
+api-version: '1.21'

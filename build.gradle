@@ -1,57 +1,53 @@
 plugins {
-	id 'fabric-loom' version '1.9.2'
-	id 'java'
+    id 'java'
 }
 
-version = project.mod_version
-group = project.maven_group
-
-base {
-	archivesName = project.archives_base_name
-}
+group = 'org.kissmod'
+version = '0.5'
 
 repositories {
-	mavenCentral()
-	maven { url 'https://maven.fabricmc.net/' }
+    mavenCentral()
+    maven {
+        name = "spigotmc-repo"
+        url = "https://hub.spigotmc.org/nexus/content/repositories/snapshots/"
+    }
+    maven {
+        name = "sonatype"
+        url = "https://oss.sonatype.org/content/groups/public/"
+    }
 }
 
 dependencies {
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    compileOnly("org.projectlombok:lombok:1.18.32")
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+    implementation 'org.jetbrains:annotations:24.0.0' // 版本号可参考最新发布[1](@ref)
+    compileOnly("org.spigotmc:spigot-api:1.21-R0.1-SNAPSHOT")
+}
 
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-
-	// 客户端专用模块
-
-	// 确保客户端模块仅在客户端加载
-	if (project.hasProperty("client")) {
-		implementation("net.fabricmc.fabric-api:fabric-key-binding-api-v1:${project.fabric_api_keybinding_version}")
-		implementation("net.fabricmc.fabric-api:fabric-lifecycle-events-v1:${project.fabric_lifecycle_version}")
-		implementation("net.fabricmc.fabric-api:fabric-networking-api-v1:${project.fabric_networking_version}")
-	}}
-
-processResources {
-	inputs.property "version", project.version
-
-	filesMatching("fabric.mod.json") {
-		expand "version": project.version
-	}
+def targetJavaVersion = 21
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
+    options.encoding = 'UTF-8'
+
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        options.release.set(targetJavaVersion)
+    }
 }
 
-java {
-	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
-}
-
-jar {
-	from("LICENSE") {
-		rename { "${it}_${project.base.archivesName.get()}"}
-	}
+processResources {
+    def props = [version: version]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand props
+    }
 }
