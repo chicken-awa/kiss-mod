@@ -11,5 +11,5 @@ When the server also installs this mod or plugin, the players who installed the 
 
 ```/kissmod-rightclick false```  Disable
 
-## More versions
+## More supported versions
 Here is a transplant mod https://github.com/Xiaoyu-2009/kiss-mod-transplant
