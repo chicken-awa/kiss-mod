@@ -103,7 +103,8 @@ public class KissModClient implements ClientModInitializer {
             if (isKeyPressed && (!wasKeyPressed || (currentTime - lastTriggerTime >= TRIGGER_INTERVAL))) {
                 Entity target = MinecraftClient.getInstance().targetedEntity;
                 if (target != null) {
-                    LOGGER.info("PLAY 客户端发送数据包 按键");
+                    LOGGER.info("PLAY 客户端发送数据包 按键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+
                     UUID senderUuid = null;
                     if (MinecraftClient.getInstance().player != null) {
                         senderUuid = MinecraftClient.getInstance().player.getUuid();
@@ -127,7 +128,8 @@ public class KissModClient implements ClientModInitializer {
                 for (Entity entity : world.getEntities()) {
                     if (entity.getUuid().equals(payload.getPattedEntityUuid())) {
                         if (MinecraftClient.getInstance().player != null && !MinecraftClient.getInstance().player.getUuid().equals(payload.getWhoPattedUuid())){
-                            LOGGER.info("PLAY 接收到了来自服务器的数据包");
+                            LOGGER.info("PLAY 接收到了来自服务器的数据包 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+
                             triggerEffect(entity, world);
                             break;
                          }
