@@ -1,15 +1,16 @@
-## Description
-This is a simple client-side mod that allows you to kiss entities. The trigger condition is to hold down the sneak key and right-click on the entity.Pressing the key can also trigger the effect (default **f7**)
+- [English](README-en_us.md)
+## 简介
+这是一个简单的客户端模组，使玩家能够亲亲实体。触发方式为潜行右击实体，按下绑定按键也可以触发（默认 F7）。
 ![kiss the player](https://cdn.modrinth.com/data/cached_images/ddbde5d1bdc6d5772e3338dcabd0d0286a290ce0.png)
-## Server-side support
-When the server also installs this mod or plugin, the players who installed the mod can see each other's effects.
+## 服务端支持
+当服务器安装了模组或插件时，安装模组的玩家间能互相看见效果。
 ## Command
 
-```/kissmod-rightclick```  Toggles whether to enable sneak right-click triggering.
+```/kissmod-rightclick```  切换是否启用潜行右击触发；
 
-```/kissmod-rightclick true```  Enable
+```/kissmod-rightclick true```  启用；
 
-```/kissmod-rightclick false```  Disable
+```/kissmod-rightclick false```  禁用。
 
-## More supported versions
-Here is a transplant mod https://github.com/Xiaoyu-2009/kiss-mod-transplant
+## 更多支持的版本
+这是一个移植版 https://github.com/Xiaoyu-2009/kiss-mod-transplant
