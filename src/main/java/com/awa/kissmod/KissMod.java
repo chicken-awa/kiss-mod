@@ -61,8 +61,8 @@ public class KissMod implements ModInitializer {
 			Entity target = ((ServerWorld) world).getEntity(targetUuid);
 
 			if (target != null) {
-				// 向所有附近玩家发送粒子数据包
-				LOGGER.info("PLAY 服务端发送数据包{}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+				// 向所有附近玩家发送数据包
+				LOGGER.info("服务端发送数据包{}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
 
 				KissS2CPacket broadcastPayload = new KissS2CPacket(target.getUuid(), senderUuid);
 				for (ServerPlayerEntity nearbyPlayer : ((ServerWorld) world).getPlayers()) {

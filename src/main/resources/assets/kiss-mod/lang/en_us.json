@@ -2,5 +2,10 @@
   "key.kiss-mod.kiss": "Kiss",
   "category.kiss-mod.keybindings": "Kiss Mod",
   "kiss-mod.toggle.enabled": "Sneak right-click trigger is enabled",
-  "kiss-mod.toggle.disabled": "Sneak right-click trigger is disabled"
+  "kiss-mod.toggle.disabled": "Sneak right-click trigger is disabled",
+  "title.kissmod.config": "Kiss Mod Configuration",
+  "category.kissmod.general": "General Settings",
+  "option.kissmod.rightClickEnabled": "Sneak Right-Click Trigger",
+  "tooltip.kissmod.rightClickEnabled": "When enabled, sneaking and right-clicking on an entity will trigger the kiss effect",
+  "message.kissmod.config_required": "Cloth Config is required to use the configuration screen"
 }

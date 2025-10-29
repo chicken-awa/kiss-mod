@@ -8,7 +8,9 @@
 		"chicken_awa","lceLantern"
 	],
 	"contact": {
-		"sources": "https://github.com/chicken-awa/kiss-mod"
+		"sources": "https://github.com/chicken-awa/kiss-mod",
+		"homepage": "https://modrinth.com/plugin/kiss-mod",
+		"issues": "https://github.com/chicken-awa/kiss-mod/issues"
 	},
 	"license": "MIT",
 	"icon": "assets/kiss-mod/icon.png",
@@ -19,6 +21,9 @@
 		],
 		"client": [
 			"com.awa.kissmod.client.KissModClient"
+		],
+		"modmenu": [
+			"com.awa.kissmod.integration.KissModMenuIntegration"
 		]
 	},
 	"depends": {
@@ -28,6 +33,7 @@
 		"fabric-api": "*"
 	},
 	"suggests": {
-		"another-mod": "*"
+		"modmenu": "*",
+		"cloth-config": "*"
 	}
 }
