@@ -7,5 +7,13 @@
   "category.kissmod.general": "通用设置",
   "option.kissmod.rightClickEnabled": "潜行右键触发",
   "tooltip.kissmod.rightClickEnabled": "启用后，潜行时右键实体可以触发亲亲效果",
-  "message.kissmod.config_required": "需要安装 Cloth Config 来使用配置界面"
+  "message.kissmod.config_required": "需要安装 Cloth Config 来使用配置界面",
+  "option.kissmod.soundEnabled": "播放音效",
+  "tooltip.kissmod.soundEnabled": "启用后，触发效果时会播放随机的亲亲音效",
+  "option.kissmod.particleCount": "粒子数量",
+  "tooltip.kissmod.particleCount": "每次触发亲亲效果时生成的爱心粒子数量 (0-100)",
+  "option.kissmod.keyBind": "按键绑定",
+  "tooltip.kissmod.keyBind": "触发亲亲效果的按键",
+  "option.kissmod.debugLogging": "调试日志",
+  "tooltip.kissmod.debugLogging": "启用后，会在日志中输出详细的调试信息"
 }

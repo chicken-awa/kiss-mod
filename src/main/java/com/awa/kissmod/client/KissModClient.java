@@ -33,11 +33,14 @@ import java.util.UUID;
 
 public class KissModClient implements ClientModInitializer {
     public static boolean rightClickEnabled = KissModConfig.loadConfig();
+    public static boolean soundEnabled = KissModConfig.soundEnabled;
+    public static int particleCount = KissModConfig.particleCount;
     private static KeyBinding kissKey;
     private static boolean wasKeyPressed = false;
     private static long lastTriggerTime = 0;
     private static final long TRIGGER_INTERVAL = 175;
     private static final Logger LOGGER = KissMod.LOGGER;
+    public static boolean debugLogging = KissModConfig.debugLogging;
     @Override
     public void onInitializeClient() {
         registerRightClickEvent();
@@ -51,7 +54,7 @@ public class KissModClient implements ClientModInitializer {
                 dispatcher.register(literal("kissmod-rightclick")
                         .executes(context -> {
                             rightClickEnabled = !rightClickEnabled;
-                            KissModConfig.saveConfig(rightClickEnabled);
+                            KissModConfig.saveConfig(rightClickEnabled, soundEnabled, particleCount,debugLogging);
                             String translationKey = rightClickEnabled ? "kiss-mod.toggle.enabled" : "kiss-mod.toggle.disabled";
                             context.getSource().sendFeedback(Text.translatable(translationKey));
                             return 1;
@@ -60,7 +63,7 @@ public class KissModClient implements ClientModInitializer {
                                 .executes(context -> {
                                     boolean state = BoolArgumentType.getBool(context, "state");
                                     rightClickEnabled = state;
-                                    KissModConfig.saveConfig(state);
+                                    KissModConfig.saveConfig(rightClickEnabled, soundEnabled, particleCount,debugLogging);
                                     String translationKey = state ? "kiss-mod.toggle.enabled" : "kiss-mod.toggle.disabled";
                                     context.getSource().sendFeedback(Text.translatable(translationKey));
                                     return 1;
@@ -74,8 +77,9 @@ public class KissModClient implements ClientModInitializer {
             if (!rightClickEnabled || !world.isClient()) return ActionResult.PASS;
             Entity target = MinecraftClient.getInstance().targetedEntity;
             if (player.isSneaking()&& entity != null) {
-                LOGGER.info("客户端发送数据包 右键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
-
+                if (debugLogging) {
+                    LOGGER.info("客户端发送数据包 右键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+                }
                 if (target != null) {
                     UUID senderUuid = null;
                     if (MinecraftClient.getInstance().player != null) {
@@ -91,10 +95,10 @@ public class KissModClient implements ClientModInitializer {
     }
     private void registerKeyBinding() {
         kissKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
-                "key.kiss-mod.kiss", // 键绑 ID
+                "key.kiss-mod.kiss",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_F7,
-                "category.kiss-mod.keybindings" // 键绑分类
+                "category.kiss-mod.keybindings"
         ));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             boolean isKeyPressed = kissKey.isPressed();
@@ -103,8 +107,9 @@ public class KissModClient implements ClientModInitializer {
             if (isKeyPressed && (!wasKeyPressed || (currentTime - lastTriggerTime >= TRIGGER_INTERVAL))) {
                 Entity target = MinecraftClient.getInstance().targetedEntity;
                 if (target != null) {
-                    LOGGER.info("客户端发送数据包 按键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
-
+                    if (debugLogging) {
+                        LOGGER.info("客户端发送数据包 按键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+                    }
                     UUID senderUuid = null;
                     if (MinecraftClient.getInstance().player != null) {
                         senderUuid = MinecraftClient.getInstance().player.getUuid();
@@ -128,8 +133,9 @@ public class KissModClient implements ClientModInitializer {
                 for (Entity entity : world.getEntities()) {
                     if (entity.getUuid().equals(payload.getPattedEntityUuid())) {
                         if (MinecraftClient.getInstance().player != null && !MinecraftClient.getInstance().player.getUuid().equals(payload.getWhoPattedUuid())){
-                            LOGGER.info("接收到了来自服务器的数据包 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
-
+                            if (debugLogging) {
+                                LOGGER.info("接收到了来自服务器的数据包 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+                            }
                             triggerEffect(entity, world);
                             break;
                          }
@@ -142,20 +148,27 @@ public class KissModClient implements ClientModInitializer {
     public static void triggerEffect(Entity target, World world) {
         if (world.isClient) {
             spawnHeartParticles(world, target);
-            LOGGER.info("PLAY 生成粒子 播放声音 at {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
-            SoundEvent[] soundEvents = {
-                    KissMod.CUSTOM_SOUND_EVENT,
-                    KissMod.CUSTOM_SOUND1_EVENT,
-                    KissMod.CUSTOM_SOUND2_EVENT};
-            SoundEvent randomSound = soundEvents[new Random().nextInt(soundEvents.length)];
+            if (debugLogging) {
+                LOGGER.info("生成粒子 at {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+            }
+            if (soundEnabled) {
+                if (debugLogging) {
+                    LOGGER.info("播放声音 at {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+                }
+                SoundEvent[] soundEvents = {
+                        KissMod.CUSTOM_SOUND_EVENT,
+                        KissMod.CUSTOM_SOUND1_EVENT,
+                        KissMod.CUSTOM_SOUND2_EVENT};
+                SoundEvent randomSound = soundEvents[new Random().nextInt(soundEvents.length)];
 
-            world.playSound(
-                    MinecraftClient.getInstance().player,
-                    target.getX(), target.getY(), target.getZ(),
-                    randomSound,
-                    SoundCategory.PLAYERS,
-                    1.0F, 1.0F
-            );
+                world.playSound(
+                        MinecraftClient.getInstance().player,
+                        target.getX(), target.getY(), target.getZ(),
+                        randomSound,
+                        SoundCategory.PLAYERS,
+                        1.0F, 1.0F
+                );
+            }
         }
     }
 
@@ -165,7 +178,7 @@ public class KissModClient implements ClientModInitializer {
             double y = entity.getY() + entity.getHeight();
             double z = entity.getZ();
 
-            for (int i = 0; i < 20; i++) {
+            for (int i = 0; i < particleCount; i++) {
                 double offsetX = world.random.nextDouble() - 0.5;
                 double offsetY = world.random.nextDouble() - 0.5;
                 double offsetZ = world.random.nextDouble() - 0.5;

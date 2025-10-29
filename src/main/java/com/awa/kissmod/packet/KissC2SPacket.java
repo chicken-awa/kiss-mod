@@ -13,7 +13,7 @@ public class KissC2SPacket implements CustomPayload {
     public static final net.minecraft.network.codec.PacketCodec<RegistryByteBuf, KissC2SPacket> CODEC = net.minecraft.network.packet.CustomPayload.codecOf(KissC2SPacket::write, KissC2SPacket::new);
 
     private final UUID kissedEntityUuid;
-    private final UUID senderUuid; // 新增发送者UUID字段
+    private final UUID senderUuid;
 
     public static Identifier typeId(String id) {
         String namespace = KissMod.MOD_ID;
@@ -33,7 +33,7 @@ public class KissC2SPacket implements CustomPayload {
 
     public KissC2SPacket(RegistryByteBuf buf) {
         this.kissedEntityUuid = buf.readUuid();
-        this.senderUuid = buf.readUuid(); // 从缓冲区读取新增字段
+        this.senderUuid = buf.readUuid();
     }
 
     @Override
@@ -51,7 +51,7 @@ public class KissC2SPacket implements CustomPayload {
 
     public void write(RegistryByteBuf buf) {
         buf.writeUuid(this.kissedEntityUuid);
-        buf.writeUuid(this.senderUuid); // 写入新增字段
+        buf.writeUuid(this.senderUuid);
     }
 }
 

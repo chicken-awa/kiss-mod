@@ -7,5 +7,13 @@
   "category.kissmod.general": "General Settings",
   "option.kissmod.rightClickEnabled": "Sneak Right-Click Trigger",
   "tooltip.kissmod.rightClickEnabled": "When enabled, sneaking and right-clicking on an entity will trigger the kiss effect",
-  "message.kissmod.config_required": "Cloth Config is required to use the configuration screen"
+  "message.kissmod.config_required": "Cloth Config is required to use the configuration screen",
+  "option.kissmod.soundEnabled": "Play sound effects",
+  "tooltip.kissmod.soundEnabled": "When enabled, random kissing sounds will play when triggered",
+  "option.kissmod.particleCount": "Particle Count",
+  "tooltip.kissmod.particleCount": "Number of heart particles spawned when the kissing effect is triggered (0-100)",
+  "option.kissmod.keyBind": "Key Binding",
+  "tooltip.kissmod.keyBind": "The key to trigger the kiss effect",
+  "option.kissmod.debugLogging": "Debug Logging",
+  "tooltip.kissmod.debugLogging": "When enabled, detailed debug information will be output in the log"
 }
