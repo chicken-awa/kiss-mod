@@ -16,7 +16,7 @@ When the server also installs this mod or plugin, the players who installed the 
 
 ## Configuration
 
-When [Mod Menu](https://modrinth.com/mod/modmenu) and Cloth [Config API](https://modrinth.com/mod/cloth-config) are installed, the configuration screen can be accessed via the mod menu to modify:
+When [Mod Menu](https://modrinth.com/mod/modmenu) and [Cloth Config API](https://modrinth.com/mod/cloth-config) are installed, the configuration screen can be accessed via the mod menu to modify:
 
 Whether to play sound effects;
 
