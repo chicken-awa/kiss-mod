@@ -23,3 +23,5 @@
 爱心粒子数量。
 ## 更多支持的版本
 这是一个移植版 https://github.com/Xiaoyu-2009/kiss-mod-transplant
+
+非官方版 https://modrinth.com/mod/kiss-mod-unofficial
