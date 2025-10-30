@@ -24,3 +24,5 @@ The number of heart particles.
 
 ## More supported versions
 Here is a transplant mod https://github.com/Xiaoyu-2009/kiss-mod-transplant
+
+Unofficial https://modrinth.com/mod/kiss-mod-unofficial
