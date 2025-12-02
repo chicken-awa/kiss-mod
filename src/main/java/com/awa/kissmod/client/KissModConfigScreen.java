@@ -25,17 +25,13 @@ public class KissModConfigScreen {
         general.addEntry(entryBuilder.startBooleanToggle(Text.translatable("option.kissmod.rightClickEnabled"), KissModConfig.rightClickEnabled)
                 .setDefaultValue(true)
                 .setTooltip(Text.translatable("tooltip.kissmod.rightClickEnabled"))
-                .setSaveConsumer(state -> {
-                    KissModConfig.rightClickEnabled = state;
-                })
+                .setSaveConsumer(state -> KissModConfig.rightClickEnabled = state)
                 .build());
 
         general.addEntry(entryBuilder.startBooleanToggle(Text.translatable("option.kissmod.soundEnabled"), KissModConfig.soundEnabled)
                 .setDefaultValue(true)
                 .setTooltip(Text.translatable("tooltip.kissmod.soundEnabled"))
-                .setSaveConsumer(state -> {
-                    KissModConfig.soundEnabled = state;
-                })
+                .setSaveConsumer(state -> KissModConfig.soundEnabled = state)
                 .build());
 
         general.addEntry(entryBuilder.startIntField(Text.translatable("option.kissmod.particleCount"), KissModConfig.particleCount)
@@ -43,17 +39,13 @@ public class KissModConfigScreen {
                 .setMin(0)
                 .setMax(100)
                 .setTooltip(Text.translatable("tooltip.kissmod.particleCount"))
-                .setSaveConsumer(state -> {
-                    KissModConfig.particleCount = state;
-                })
+                .setSaveConsumer(state -> KissModConfig.particleCount = state)
                 .build());
 
         general.addEntry(entryBuilder.startBooleanToggle(Text.translatable("option.kissmod.debugLogging"), KissModConfig.debugLogging)
                 .setDefaultValue(false)
                 .setTooltip(Text.translatable("tooltip.kissmod.debugLogging"))
-                .setSaveConsumer(state -> {
-                    KissModConfig.debugLogging = state;
-                })
+                .setSaveConsumer(state -> KissModConfig.debugLogging = state)
                 .build());
 
         return builder.build();
