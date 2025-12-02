@@ -16,7 +16,7 @@ When the server also installs this mod or plugin, the players who installed the 
 
 ## Configuration
 
-When [Mod Menu](https://modrinth.com/mod/modmenu) and Cloth [Config API](https://modrinth.com/mod/cloth-config) are installed, the configuration screen can be accessed via the mod menu to modify:
+When [Mod Menu](https://modrinth.com/mod/modmenu) and [Cloth Config API](https://modrinth.com/mod/cloth-config) are installed, the configuration screen can be accessed via the mod menu to modify:
 
 Whether to play sound effects;
 
@@ -24,3 +24,5 @@ The number of heart particles.
 
 ## More supported versions
 Here is a transplant mod https://github.com/Xiaoyu-2009/kiss-mod-transplant
+
+Unofficial https://modrinth.com/mod/kiss-mod-unofficial
