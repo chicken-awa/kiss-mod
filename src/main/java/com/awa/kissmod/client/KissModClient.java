@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
@@ -23,6 +24,7 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.*;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 
+
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
@@ -32,38 +34,42 @@ import java.util.Random;
 import java.util.UUID;
 
 public class KissModClient implements ClientModInitializer {
-    public static boolean rightClickEnabled = KissModConfig.loadConfig();
-    public static boolean soundEnabled = KissModConfig.soundEnabled;
-    public static int particleCount = KissModConfig.particleCount;
+
     private static KeyBinding kissKey;
     private static boolean wasKeyPressed = false;
     private static long lastTriggerTime = 0;
     private static final long TRIGGER_INTERVAL = 175;
     private static final Logger LOGGER = KissMod.LOGGER;
-    public static boolean debugLogging = KissModConfig.debugLogging;
+
     @Override
     public void onInitializeClient() {
+        if (FabricLoader.getInstance().isModLoaded("cloth-config")) {
+            KissMod.LOGGER.info("Cloth Config detected");
+        } else {
+            KissMod.LOGGER.info("Cloth Config not detected");
+        }
         registerRightClickEvent();
         registerKeyBinding();
         registerClientNetworkReceiver();
         registerCommands();
+        KissModConfig.loadConfig();
         System.out.println("KissModClient initialized!");
     }
     private void registerCommands() {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
                 dispatcher.register(literal("kissmod-rightclick")
                         .executes(context -> {
-                            rightClickEnabled = !rightClickEnabled;
-                            KissModConfig.saveConfig(rightClickEnabled, soundEnabled, particleCount,debugLogging);
-                            String translationKey = rightClickEnabled ? "kiss-mod.toggle.enabled" : "kiss-mod.toggle.disabled";
+                            KissModConfig.rightClickEnabled = !KissModConfig.rightClickEnabled;
+                            KissModConfig.saveConfig(KissModConfig.rightClickEnabled, KissModConfig.soundEnabled, KissModConfig.particleCount,KissModConfig.debugLogging);
+                            String translationKey = KissModConfig.rightClickEnabled ? "kiss-mod.toggle.enabled" : "kiss-mod.toggle.disabled";
                             context.getSource().sendFeedback(Text.translatable(translationKey));
                             return 1;
                         })
                         .then(argument("state", BoolArgumentType.bool())
                                 .executes(context -> {
                                     boolean state = BoolArgumentType.getBool(context, "state");
-                                    rightClickEnabled = state;
-                                    KissModConfig.saveConfig(rightClickEnabled, soundEnabled, particleCount,debugLogging);
+                                    KissModConfig.rightClickEnabled = state;
+                                    KissModConfig.saveConfig(KissModConfig.rightClickEnabled, KissModConfig.soundEnabled, KissModConfig.particleCount,KissModConfig.debugLogging);
                                     String translationKey = state ? "kiss-mod.toggle.enabled" : "kiss-mod.toggle.disabled";
                                     context.getSource().sendFeedback(Text.translatable(translationKey));
                                     return 1;
@@ -74,10 +80,10 @@ public class KissModClient implements ClientModInitializer {
     }
     private void registerRightClickEvent() {
         UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
-            if (!rightClickEnabled || !world.isClient()) return ActionResult.PASS;
+            if (!KissModConfig.rightClickEnabled || !world.isClient()) return ActionResult.PASS;
             Entity target = MinecraftClient.getInstance().targetedEntity;
             if (player.isSneaking()&& entity != null) {
-                if (debugLogging) {
+                if (KissModConfig.debugLogging) {
                     LOGGER.info("客户端发送数据包 右键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
                 }
                 if (target != null) {
@@ -107,7 +113,7 @@ public class KissModClient implements ClientModInitializer {
             if (isKeyPressed && (!wasKeyPressed || (currentTime - lastTriggerTime >= TRIGGER_INTERVAL))) {
                 Entity target = MinecraftClient.getInstance().targetedEntity;
                 if (target != null) {
-                    if (debugLogging) {
+                    if (KissModConfig.debugLogging) {
                         LOGGER.info("客户端发送数据包 按键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
                     }
                     UUID senderUuid = null;
@@ -133,7 +139,7 @@ public class KissModClient implements ClientModInitializer {
                 for (Entity entity : world.getEntities()) {
                     if (entity.getUuid().equals(payload.getPattedEntityUuid())) {
                         if (MinecraftClient.getInstance().player != null && !MinecraftClient.getInstance().player.getUuid().equals(payload.getWhoPattedUuid())){
-                            if (debugLogging) {
+                            if (KissModConfig.debugLogging) {
                                 LOGGER.info("接收到了来自服务器的数据包 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
                             }
                             triggerEffect(entity, world);
@@ -148,11 +154,11 @@ public class KissModClient implements ClientModInitializer {
     public static void triggerEffect(Entity target, World world) {
         if (world.isClient) {
             spawnHeartParticles(world, target);
-            if (debugLogging) {
+            if (KissModConfig.debugLogging) {
                 LOGGER.info("生成粒子 at {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
             }
-            if (soundEnabled) {
-                if (debugLogging) {
+            if (KissModConfig.soundEnabled) {
+                if (KissModConfig.debugLogging) {
                     LOGGER.info("播放声音 at {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
                 }
                 SoundEvent[] soundEvents = {
@@ -173,21 +179,19 @@ public class KissModClient implements ClientModInitializer {
     }
 
     public static void spawnHeartParticles(World world, Entity entity) {
-        if (world.isClient) {
-            double x = entity.getX();
-            double y = entity.getY() + entity.getHeight();
-            double z = entity.getZ();
+        double x = entity.getX();
+        double y = entity.getY() + entity.getHeight();
+        double z = entity.getZ();
 
-            for (int i = 0; i < particleCount; i++) {
-                double offsetX = world.random.nextDouble() - 0.5;
-                double offsetY = world.random.nextDouble() - 0.5;
-                double offsetZ = world.random.nextDouble() - 0.5;
-                world.addParticle(
-                        net.minecraft.particle.ParticleTypes.HEART,
-                        x + offsetX, y + offsetY, z + offsetZ,
-                        0.0, 0.0, 0.0
-                );
-            }
+        for (int i = 0; i < KissModConfig.particleCount; i++) {
+            double offsetX = world.random.nextDouble() - 0.5;
+            double offsetY = world.random.nextDouble() - 0.5;
+            double offsetZ = world.random.nextDouble() - 0.5;
+            world.addParticle(
+                    net.minecraft.particle.ParticleTypes.HEART,
+                    x + offsetX, y + offsetY, z + offsetZ,
+                    0.0, 0.0, 0.0
+            );
         }
     }
 }

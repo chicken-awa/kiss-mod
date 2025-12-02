@@ -7,10 +7,6 @@ import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 public class KissModMenuIntegration implements ModMenuApi {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        try {
-            return KissModConfig::getScreen;
-        } catch (NoClassDefFoundError | Exception e) {
-            return null;
-        }
+        return KissModConfig::getScreen;
     }
 }
