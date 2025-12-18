@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.9.2'
+	id 'fabric-loom' version '1.14-SNAPSHOT'
 	id 'java'
 
 }
@@ -20,24 +20,43 @@ file('versions').listFiles().each { versionDir ->
 		if (file(propertiesFile).exists()) {
 			tasks.register("build${versionName}", GradleBuild) {
 				group = 'kiss clean,build'
-				description = "构建${versionName} 版本"
+				description = "构建 ${versionName} 版本"
 				tasks = ['clean','build']
 				startParameter.projectProperties = [profileFile: propertiesFile]
 			}
-		}
-	}
-}
-file('versions').listFiles().each { versionDir ->
-	if (versionDir.isDirectory()) {
-		def versionName = versionDir.name
-		def propertiesFile = "versions/${versionName}/gradle.properties"
-
-		if (file(propertiesFile).exists()) {
 			tasks.register("runClient${versionName}", GradleBuild) {
 				group = 'kiss runClient'
-				description = "运行${versionName} 版本"
+				description = "运行 ${versionName} 版本"
 				tasks = ['runClient']
 				startParameter.projectProperties = [profileFile: propertiesFile]
+			}
+			tasks.register("switchTo${versionName}") {
+				group = 'kiss switch'
+				description = "切换到 ${versionName} 版本"
+				doLast {
+					def versionProps = new Properties()
+					file(propertiesFile).withInputStream { versionProps.load(it) }
+
+					def rootPropsFile = file("gradle.properties")
+					def lines = rootPropsFile.readLines()
+
+					def newContent = lines.collect { line ->
+						if (line.startsWith("#") || line.isEmpty()) {
+							return line
+						}
+						def matcher = line =~ /^([^=#]+)=(.*)$/
+						if (matcher.matches()) {
+							def key = matcher.group(1)
+
+							if (versionProps.containsKey(key)) {
+								return "${key}=${versionProps.get(key)}"
+							}
+						}
+						return line
+					}.join("\n")
+					rootPropsFile.text = newContent
+					println "已切换到版本 ${versionName}，请重新同步Gradle项目。"
+				}
 			}
 		}
 	}
