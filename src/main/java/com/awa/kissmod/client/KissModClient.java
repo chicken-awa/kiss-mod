@@ -15,6 +15,7 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
@@ -187,11 +188,18 @@ public class KissModClient implements ClientModInitializer {
             double offsetX = world.random.nextDouble() - 0.5;
             double offsetY = world.random.nextDouble() - 0.5;
             double offsetZ = world.random.nextDouble() - 0.5;
-            world.addParticle(
-                    net.minecraft.particle.ParticleTypes.HEART,
+            //? if >=1.21.5 {
+            /*world.addParticleClient(
+                    ParticleTypes.HEART,
                     x + offsetX, y + offsetY, z + offsetZ,
                     0.0, 0.0, 0.0
             );
+            *///?}else{
+            world.addParticle(
+                    ParticleTypes.HEART,
+                    x + offsetX, y + offsetY, z + offsetZ,
+                    0.0, 0.0, 0.0
+            );//? }
         }
     }
 }

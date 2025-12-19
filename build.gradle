@@ -1,65 +1,7 @@
 plugins {
 	id 'fabric-loom' version '1.14-SNAPSHOT'
 	id 'java'
-
-}
-if (project.hasProperty('profileFile')) {
-	def profileProperties = new Properties()
-	file(profileFile).withInputStream { profileProperties.load(it) }
-	profileProperties.each { key, value ->
-		project.ext.set(key, value)
-	}
-	println "$profileFile"
-	println "${project.minecraft_version}"
-}
-file('versions').listFiles().each { versionDir ->
-	if (versionDir.isDirectory()) {
-		def versionName = versionDir.name
-		def propertiesFile = "versions/${versionName}/gradle.properties"
-
-		if (file(propertiesFile).exists()) {
-			tasks.register("build${versionName}", GradleBuild) {
-				group = 'kiss clean,build'
-				description = "构建 ${versionName} 版本"
-				tasks = ['clean','build']
-				startParameter.projectProperties = [profileFile: propertiesFile]
-			}
-			tasks.register("runClient${versionName}", GradleBuild) {
-				group = 'kiss runClient'
-				description = "运行 ${versionName} 版本"
-				tasks = ['runClient']
-				startParameter.projectProperties = [profileFile: propertiesFile]
-			}
-			tasks.register("switchTo${versionName}") {
-				group = 'kiss switch'
-				description = "切换到 ${versionName} 版本"
-				doLast {
-					def versionProps = new Properties()
-					file(propertiesFile).withInputStream { versionProps.load(it) }
-
-					def rootPropsFile = file("gradle.properties")
-					def lines = rootPropsFile.readLines()
-
-					def newContent = lines.collect { line ->
-						if (line.startsWith("#") || line.isEmpty()) {
-							return line
-						}
-						def matcher = line =~ /^([^=#]+)=(.*)$/
-						if (matcher.matches()) {
-							def key = matcher.group(1)
-
-							if (versionProps.containsKey(key)) {
-								return "${key}=${versionProps.get(key)}"
-							}
-						}
-						return line
-					}.join("\n")
-					rootPropsFile.text = newContent
-					println "已切换到版本 ${versionName}，请重新同步Gradle项目。"
-				}
-			}
-		}
-	}
+	id 'dev.kikugie.stonecutter'
 }
 version = project.mod_version
 group = project.maven_group
@@ -67,7 +9,6 @@ group = project.maven_group
 base {
 	archivesName = project.archives_base_name
 }
-
 repositories {
 	mavenCentral()
 	maven {
