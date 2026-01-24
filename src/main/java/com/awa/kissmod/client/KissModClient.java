@@ -100,12 +100,21 @@ public class KissModClient implements ClientModInitializer {
             return ActionResult.PASS;
         });
     }
+    //? if >=1.21.9{
+    /*public static final KeyBinding.Category KISS_MOD_CATEGORY = KeyBinding.Category.create(
+            Identifier.of("kiss-mod", "keybindings")
+    );
+    *///?}
     private void registerKeyBinding() {
         kissKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.kiss-mod.kiss",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_F7,
+                //? if >=1.21.9{
+                /*KISS_MOD_CATEGORY
+                *///?} else{
                 "category.kiss-mod.keybindings"
+                //?}
         ));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             boolean isKeyPressed = kissKey.isPressed();
@@ -153,7 +162,7 @@ public class KissModClient implements ClientModInitializer {
     }
 
     public static void triggerEffect(Entity target, World world) {
-        if (world.isClient) {
+        if (world.isClient()) {
             spawnHeartParticles(world, target);
             if (KissModConfig.debugLogging) {
                 LOGGER.info("生成粒子 at {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
@@ -194,7 +203,7 @@ public class KissModClient implements ClientModInitializer {
                     x + offsetX, y + offsetY, z + offsetZ,
                     0.0, 0.0, 0.0
             );
-            *///?}else{
+            *///?} else{
             world.addParticle(
                     ParticleTypes.HEART,
                     x + offsetX, y + offsetY, z + offsetZ,

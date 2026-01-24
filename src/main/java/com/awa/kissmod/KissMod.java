@@ -62,7 +62,11 @@ public class KissMod implements ModInitializer {
 			ServerPlayerEntity player = context.player();
 			UUID targetUuid = payload.getKissedEntityUuid();
 			UUID senderUuid = payload.getSenderUuid();
+			//? if >=1.21.9{
+			/*World world = player.getEntityWorld();
+			*///?} else{
 			World world = player.getWorld();
+			//?}
 			Entity target = ((ServerWorld) world).getEntity(targetUuid);
 			if (target != null) {
 				// 向所有附近玩家发送数据包
