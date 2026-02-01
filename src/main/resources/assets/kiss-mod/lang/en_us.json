@@ -1,6 +1,6 @@
 {
   "key.kiss-mod.kiss": "Kiss",
-  "category.kiss-mod.keybindings": "Kiss Mod",
+  "key.category.kiss-mod.keybindings": "Kiss Mod",
   "kiss-mod.toggle.enabled": "Sneak right-click trigger is enabled",
   "kiss-mod.toggle.disabled": "Sneak right-click trigger is disabled",
   "title.kissmod.config": "Kiss Mod Configuration",
