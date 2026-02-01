@@ -113,7 +113,7 @@ public class KissModClient implements ClientModInitializer {
                 //? if >=1.21.9{
                 /*KISS_MOD_CATEGORY
                 *///?} else{
-                "category.kiss-mod.keybindings"
+                "key.category.kiss-mod.keybindings"
                 //?}
         ));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
