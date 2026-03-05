@@ -12,14 +12,7 @@ public class KissModConfigScreen {
         ConfigBuilder builder = ConfigBuilder.create()
                 .setParentScreen(parent)
                 .setTitle(Text.translatable("title.kissmod.config"))
-                .setSavingRunnable(() -> KissModConfig.saveConfig(
-                        KissModConfig.rightClickEnabled,
-                        KissModConfig.soundEnabled,
-                        KissModConfig.particleCount,
-                        KissModConfig.debugLogging,
-                        KissModConfig.showOwnKiss,
-                        KissModConfig.showOthersKiss
-                ));
+                .setSavingRunnable(KissModConfig::saveConfig);
 
         ConfigCategory general = builder.getOrCreateCategory(Text.translatable("category.kissmod.general"));
         ConfigEntryBuilder entryBuilder = builder.entryBuilder();
