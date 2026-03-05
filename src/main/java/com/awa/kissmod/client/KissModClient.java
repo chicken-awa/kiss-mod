@@ -61,7 +61,7 @@ public class KissModClient implements ClientModInitializer {
                 dispatcher.register(literal("kissmod-rightclick")
                         .executes(context -> {
                             KissModConfig.rightClickEnabled = !KissModConfig.rightClickEnabled;
-                            KissModConfig.saveConfig(KissModConfig.rightClickEnabled, KissModConfig.soundEnabled, KissModConfig.particleCount, KissModConfig.debugLogging, KissModConfig.showOwnKiss, KissModConfig.showOthersKiss);
+                            KissModConfig.saveConfig();
                             String translationKey = KissModConfig.rightClickEnabled ? "kiss-mod.toggle.enabled" : "kiss-mod.toggle.disabled";
                             context.getSource().sendFeedback(Text.translatable(translationKey));
                             return 1;
@@ -70,7 +70,7 @@ public class KissModClient implements ClientModInitializer {
                                 .executes(context -> {
                                     boolean state = BoolArgumentType.getBool(context, "state");
                                     KissModConfig.rightClickEnabled = state;
-                                    KissModConfig.saveConfig(KissModConfig.rightClickEnabled, KissModConfig.soundEnabled, KissModConfig.particleCount, KissModConfig.debugLogging, KissModConfig.showOwnKiss, KissModConfig.showOthersKiss);
+                                    KissModConfig.saveConfig();
                                     String translationKey = state ? "kiss-mod.toggle.enabled" : "kiss-mod.toggle.disabled";
                                     context.getSource().sendFeedback(Text.translatable(translationKey));
                                     return 1;

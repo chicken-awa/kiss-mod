@@ -3,6 +3,7 @@ package com.awa.kissmod;
 import com.awa.kissmod.client.KissModConfigScreen;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screen.Screen;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.util.Properties;
@@ -26,7 +27,7 @@ public class KissModConfig {
     public static void loadConfig() {
         File configFile = new File(CONFIG_FILE);
         if (!configFile.exists()) {
-            saveConfig(rightClickEnabled, soundEnabled, particleCount, debugLogging, showOwnKiss, showOthersKiss);
+            saveConfig();
             return;
         }
         try (InputStream input = new FileInputStream(configFile)) {
@@ -44,18 +45,11 @@ public class KissModConfig {
                 particleCount = 10;
             }
         } catch (IOException e) {
-            saveConfig(rightClickEnabled, soundEnabled, particleCount, debugLogging, showOwnKiss, showOthersKiss);
+            saveConfig();
         }
     }
 
-    public static void saveConfig(boolean rightClickState, boolean soundState, int particleCountState, boolean debugLoggingState, boolean showOwnKissState, boolean showOthersKissState) {
-        rightClickEnabled = rightClickState;
-        soundEnabled = soundState;
-        particleCount = particleCountState;
-        debugLogging = debugLoggingState;
-        showOwnKiss = showOwnKissState;
-        showOthersKiss = showOthersKissState;
-
+    public static void saveConfig() {
         File configDir = new File("config");
         if (!configDir.exists()) {
             boolean created = configDir.mkdirs();
@@ -65,17 +59,22 @@ public class KissModConfig {
             }
         }
         try (OutputStream output = new FileOutputStream(CONFIG_FILE)) {
-            Properties prop = new Properties();
-            prop.setProperty(RIGHT_CLICK_KEY, String.valueOf(rightClickState));
-            prop.setProperty(SOUND_ENABLED_KEY, String.valueOf(soundState));
-            prop.setProperty(PARTICLE_COUNT_KEY, String.valueOf(particleCountState));
-            prop.setProperty(DEBUG_LOGGING_KEY, String.valueOf(debugLoggingState));
-            prop.setProperty(SHOW_OWN_KISS_KEY, String.valueOf(showOwnKissState));
-            prop.setProperty(SHOW_OTHERS_KISS_KEY, String.valueOf(showOthersKissState));
+            Properties prop = getProperties();
             prop.store(output, "KissMod Configuration");
         } catch (IOException e) {
             KissMod.LOGGER.error("保存配置文件失败", e);
         }
+    }
+
+    private static @NotNull Properties getProperties() {
+        Properties prop = new Properties();
+        prop.setProperty(RIGHT_CLICK_KEY, String.valueOf(rightClickEnabled));
+        prop.setProperty(SOUND_ENABLED_KEY, String.valueOf(soundEnabled));
+        prop.setProperty(PARTICLE_COUNT_KEY, String.valueOf(particleCount));
+        prop.setProperty(DEBUG_LOGGING_KEY, String.valueOf(debugLogging));
+        prop.setProperty(SHOW_OWN_KISS_KEY, String.valueOf(showOwnKiss));
+        prop.setProperty(SHOW_OTHERS_KISS_KEY, String.valueOf(showOthersKiss));
+        return prop;
     }
 
     public static Screen getScreen(Screen parent) {
