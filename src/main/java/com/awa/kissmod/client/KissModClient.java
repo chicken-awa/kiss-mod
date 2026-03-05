@@ -61,7 +61,7 @@ public class KissModClient implements ClientModInitializer {
                 dispatcher.register(literal("kissmod-rightclick")
                         .executes(context -> {
                             KissModConfig.rightClickEnabled = !KissModConfig.rightClickEnabled;
-                            KissModConfig.saveConfig(KissModConfig.rightClickEnabled, KissModConfig.soundEnabled, KissModConfig.particleCount,KissModConfig.debugLogging);
+                            KissModConfig.saveConfig(KissModConfig.rightClickEnabled, KissModConfig.soundEnabled, KissModConfig.particleCount, KissModConfig.debugLogging, KissModConfig.showOwnKiss, KissModConfig.showOthersKiss);
                             String translationKey = KissModConfig.rightClickEnabled ? "kiss-mod.toggle.enabled" : "kiss-mod.toggle.disabled";
                             context.getSource().sendFeedback(Text.translatable(translationKey));
                             return 1;
@@ -70,7 +70,7 @@ public class KissModClient implements ClientModInitializer {
                                 .executes(context -> {
                                     boolean state = BoolArgumentType.getBool(context, "state");
                                     KissModConfig.rightClickEnabled = state;
-                                    KissModConfig.saveConfig(KissModConfig.rightClickEnabled, KissModConfig.soundEnabled, KissModConfig.particleCount,KissModConfig.debugLogging);
+                                    KissModConfig.saveConfig(KissModConfig.rightClickEnabled, KissModConfig.soundEnabled, KissModConfig.particleCount, KissModConfig.debugLogging, KissModConfig.showOwnKiss, KissModConfig.showOthersKiss);
                                     String translationKey = state ? "kiss-mod.toggle.enabled" : "kiss-mod.toggle.disabled";
                                     context.getSource().sendFeedback(Text.translatable(translationKey));
                                     return 1;
@@ -92,7 +92,9 @@ public class KissModClient implements ClientModInitializer {
                     if (MinecraftClient.getInstance().player != null) {
                         senderUuid = MinecraftClient.getInstance().player.getUuid();
                     }
-                    ClientPlayNetworking.send(new KissC2SPacket(target.getUuid(), senderUuid));
+                    if (KissModConfig.showOwnKiss) {
+                        ClientPlayNetworking.send(new KissC2SPacket(target.getUuid(), senderUuid));
+                    }
                     triggerEffect(target, world);
                     return ActionResult.SUCCESS;
                 }
@@ -148,7 +150,7 @@ public class KissModClient implements ClientModInitializer {
             if (world != null) {
                 for (Entity entity : world.getEntities()) {
                     if (entity.getUuid().equals(payload.getPattedEntityUuid())) {
-                        if (MinecraftClient.getInstance().player != null && !MinecraftClient.getInstance().player.getUuid().equals(payload.getWhoPattedUuid())){
+                        if (KissModConfig.showOthersKiss && MinecraftClient.getInstance().player != null && !MinecraftClient.getInstance().player.getUuid().equals(payload.getWhoPattedUuid())){
                             if (KissModConfig.debugLogging) {
                                 LOGGER.info("接收到了来自服务器的数据包 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
                             }

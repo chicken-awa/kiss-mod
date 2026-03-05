@@ -15,5 +15,9 @@
   "option.kissmod.keyBind": "Key Binding",
   "tooltip.kissmod.keyBind": "The key to trigger the kiss effect",
   "option.kissmod.debugLogging": "Debug Logging",
-  "tooltip.kissmod.debugLogging": "When enabled, detailed debug information will be output in the log"
+  "tooltip.kissmod.debugLogging": "When enabled, detailed debug information will be output in the log",
+  "option.kissmod.showOwnKiss": "Show My Kiss to Others",
+  "tooltip.kissmod.showOwnKiss": "Whether to allow others to see your kiss",
+  "option.kissmod.showOthersKiss": "See Others' Kisses",
+  "tooltip.kissmod.showOthersKiss": "Whether to see others' kisses"
 }

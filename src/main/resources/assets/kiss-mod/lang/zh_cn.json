@@ -15,5 +15,9 @@
   "option.kissmod.keyBind": "按键绑定",
   "tooltip.kissmod.keyBind": "触发亲亲效果的按键",
   "option.kissmod.debugLogging": "调试日志",
-  "tooltip.kissmod.debugLogging": "启用后，会在日志中输出详细的调试信息"
+  "tooltip.kissmod.debugLogging": "启用后，会在日志中输出详细的调试信息",
+  "option.kissmod.showOwnKiss": "给别人看亲亲",
+  "tooltip.kissmod.showOwnKiss": "是否把自己的亲亲给别人看",
+  "option.kissmod.showOthersKiss": "看看别人的亲亲",
+  "tooltip.kissmod.showOthersKiss": "是否要看别人的亲亲"
 }

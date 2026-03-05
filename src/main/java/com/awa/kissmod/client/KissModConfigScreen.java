@@ -16,7 +16,9 @@ public class KissModConfigScreen {
                         KissModConfig.rightClickEnabled,
                         KissModConfig.soundEnabled,
                         KissModConfig.particleCount,
-                        KissModConfig.debugLogging
+                        KissModConfig.debugLogging,
+                        KissModConfig.showOwnKiss,
+                        KissModConfig.showOthersKiss
                 ));
 
         ConfigCategory general = builder.getOrCreateCategory(Text.translatable("category.kissmod.general"));
@@ -26,6 +28,18 @@ public class KissModConfigScreen {
                 .setDefaultValue(true)
                 .setTooltip(Text.translatable("tooltip.kissmod.rightClickEnabled"))
                 .setSaveConsumer(state -> KissModConfig.rightClickEnabled = state)
+                .build());
+
+        general.addEntry(entryBuilder.startBooleanToggle(Text.translatable("option.kissmod.showOwnKiss"), KissModConfig.showOwnKiss)
+                .setDefaultValue(true)
+                .setTooltip(Text.translatable("tooltip.kissmod.showOwnKiss"))
+                .setSaveConsumer(state -> KissModConfig.showOwnKiss = state)
+                .build());
+
+        general.addEntry(entryBuilder.startBooleanToggle(Text.translatable("option.kissmod.showOthersKiss"), KissModConfig.showOthersKiss)
+                .setDefaultValue(true)
+                .setTooltip(Text.translatable("tooltip.kissmod.showOthersKiss"))
+                .setSaveConsumer(state -> KissModConfig.showOthersKiss = state)
                 .build());
 
         general.addEntry(entryBuilder.startBooleanToggle(Text.translatable("option.kissmod.soundEnabled"), KissModConfig.soundEnabled)
