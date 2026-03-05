@@ -13,16 +13,20 @@ public class KissModConfig {
     private static final String SOUND_ENABLED_KEY = "soundEnabled";
     private static final String PARTICLE_COUNT_KEY = "particleCount";
     private static final String DEBUG_LOGGING_KEY = "debugLogging";
+    private static final String SHOW_OWN_KISS_KEY = "showOwnKiss";
+    private static final String SHOW_OTHERS_KISS_KEY = "showOthersKiss";
 
     public static boolean rightClickEnabled = true;
     public static boolean soundEnabled = true;
     public static int particleCount = 10;
     public static boolean debugLogging = false;
+    public static boolean showOwnKiss = true;
+    public static boolean showOthersKiss = true;
 
     public static void loadConfig() {
         File configFile = new File(CONFIG_FILE);
         if (!configFile.exists()) {
-            saveConfig(rightClickEnabled, soundEnabled, particleCount, debugLogging);
+            saveConfig(rightClickEnabled, soundEnabled, particleCount, debugLogging, showOwnKiss, showOthersKiss);
             return;
         }
         try (InputStream input = new FileInputStream(configFile)) {
@@ -31,6 +35,8 @@ public class KissModConfig {
             rightClickEnabled = Boolean.parseBoolean(prop.getProperty(RIGHT_CLICK_KEY, "true"));
             soundEnabled = Boolean.parseBoolean(prop.getProperty(SOUND_ENABLED_KEY, "true"));
             debugLogging = Boolean.parseBoolean(prop.getProperty(DEBUG_LOGGING_KEY, "false"));
+            showOwnKiss = Boolean.parseBoolean(prop.getProperty(SHOW_OWN_KISS_KEY, "true"));
+            showOthersKiss = Boolean.parseBoolean(prop.getProperty(SHOW_OTHERS_KISS_KEY, "true"));
             try {
                 particleCount = Integer.parseInt(prop.getProperty(PARTICLE_COUNT_KEY, "10"));
             } catch (NumberFormatException e) {
@@ -38,15 +44,17 @@ public class KissModConfig {
                 particleCount = 10;
             }
         } catch (IOException e) {
-            saveConfig(rightClickEnabled, soundEnabled, particleCount, debugLogging);
+            saveConfig(rightClickEnabled, soundEnabled, particleCount, debugLogging, showOwnKiss, showOthersKiss);
         }
     }
 
-    public static void saveConfig(boolean rightClickState, boolean soundState, int particleCountState, boolean debugLoggingState) {
+    public static void saveConfig(boolean rightClickState, boolean soundState, int particleCountState, boolean debugLoggingState, boolean showOwnKissState, boolean showOthersKissState) {
         rightClickEnabled = rightClickState;
         soundEnabled = soundState;
         particleCount = particleCountState;
         debugLogging = debugLoggingState;
+        showOwnKiss = showOwnKissState;
+        showOthersKiss = showOthersKissState;
 
         File configDir = new File("config");
         if (!configDir.exists()) {
@@ -62,6 +70,8 @@ public class KissModConfig {
             prop.setProperty(SOUND_ENABLED_KEY, String.valueOf(soundState));
             prop.setProperty(PARTICLE_COUNT_KEY, String.valueOf(particleCountState));
             prop.setProperty(DEBUG_LOGGING_KEY, String.valueOf(debugLoggingState));
+            prop.setProperty(SHOW_OWN_KISS_KEY, String.valueOf(showOwnKissState));
+            prop.setProperty(SHOW_OTHERS_KISS_KEY, String.valueOf(showOthersKissState));
             prop.store(output, "KissMod Configuration");
         } catch (IOException e) {
             KissMod.LOGGER.error("保存配置文件失败", e);
