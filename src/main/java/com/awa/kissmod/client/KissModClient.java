@@ -88,19 +88,23 @@ public class KissModClient implements ClientModInitializer {
                     LOGGER.info("客户端发送数据包 右键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
                 }
                 if (target != null) {
-                    UUID senderUuid = null;
-                    if (MinecraftClient.getInstance().player != null) {
-                        senderUuid = MinecraftClient.getInstance().player.getUuid();
-                    }
-                    if (KissModConfig.showOwnKiss) {
-                        ClientPlayNetworking.send(new KissC2SPacket(target.getUuid(), senderUuid));
-                    }
+                    sendKissPacket(target);
                     triggerEffect(target, world);
                     return ActionResult.SUCCESS;
                 }
             }
             return ActionResult.PASS;
         });
+    }
+
+    private void sendKissPacket(Entity target) {
+        UUID senderUuid = null;
+        if (MinecraftClient.getInstance().player != null) {
+            senderUuid = MinecraftClient.getInstance().player.getUuid();
+        }
+        if (KissModConfig.showOwnKiss) {
+            ClientPlayNetworking.send(new KissC2SPacket(target.getUuid(), senderUuid));
+        }
     }
     //? if >=1.21.9{
     /*public static final KeyBinding.Category KISS_MOD_CATEGORY = KeyBinding.Category.create(
@@ -128,13 +132,7 @@ public class KissModClient implements ClientModInitializer {
                     if (KissModConfig.debugLogging) {
                         LOGGER.info("客户端发送数据包 按键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
                     }
-                    UUID senderUuid = null;
-                    if (MinecraftClient.getInstance().player != null) {
-                        senderUuid = MinecraftClient.getInstance().player.getUuid();
-                    }
-                    if (KissModConfig.showOwnKiss) {
-                        ClientPlayNetworking.send(new KissC2SPacket(target.getUuid(), senderUuid));
-                    }
+                    sendKissPacket(target);
                     if (client.world != null) {
                         triggerEffect(target, client.world);
                     }
@@ -150,17 +148,18 @@ public class KissModClient implements ClientModInitializer {
             ClientWorld world = client.world;
 
             if (world != null) {
+                UUID targetUuid = payload.getPattedEntityUuid();
                 for (Entity entity : world.getEntities()) {
-                    if (entity.getUuid().equals(payload.getPattedEntityUuid())) {
-                        if (MinecraftClient.getInstance().player != null && !MinecraftClient.getInstance().player.getUuid().equals(payload.getWhoPattedUuid())){
+                    if (entity.getUuid().equals(targetUuid)) {
+                        if (client.player != null && !client.player.getUuid().equals(payload.getWhoPattedUuid())) {
                             if (KissModConfig.debugLogging) {
                                 LOGGER.info("接收到了来自服务器的数据包 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
                             }
                             if(KissModConfig.showOthersKiss) {
                                 triggerEffect(entity, world);
                             }
-                            break;
-                         }
+                        }
+                        break;
                     }
                 }
             }
