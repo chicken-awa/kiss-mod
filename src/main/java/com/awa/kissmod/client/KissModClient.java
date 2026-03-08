@@ -147,20 +147,17 @@ public class KissModClient implements ClientModInitializer {
             MinecraftClient client = MinecraftClient.getInstance();
             ClientWorld world = client.world;
 
-            if (world != null) {
-                UUID targetUuid = payload.getPattedEntityUuid();
-                for (Entity entity : world.getEntities()) {
-                    if (entity.getUuid().equals(targetUuid)) {
-                        if (client.player != null && !client.player.getUuid().equals(payload.getWhoPattedUuid())) {
-                            if (KissModConfig.debugLogging) {
-                                LOGGER.info("接收到了来自服务器的数据包 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
-                            }
-                            if(KissModConfig.showOthersKiss) {
-                                triggerEffect(entity, world);
-                            }
-                        }
-                        break;
+            if (world == null || client.player == null) return;
+            if (!KissModConfig.showOthersKiss) return;
+            if (client.player.getUuid().equals(payload.getWhoPattedUuid())) return;
+            UUID targetUuid = payload.getPattedEntityUuid();
+            for (Entity entity : world.getEntities()) {
+                if (entity.getUuid().equals(targetUuid)) {
+                    if (KissModConfig.debugLogging) {
+                        LOGGER.info("接收到了来自服务器的数据包 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
                     }
+                    triggerEffect(entity, world);
+                    break;
                 }
             }
         });

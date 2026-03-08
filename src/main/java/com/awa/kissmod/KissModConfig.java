@@ -87,14 +87,12 @@ public class KissModConfig {
         ) {
             @Override
             protected void init() {
-                int screenWidth = this.width;
-                int screenHeight = this.height;
                 net.minecraft.client.gui.widget.ButtonWidget backButton =
                         net.minecraft.client.gui.widget.ButtonWidget.builder(
                                         net.minecraft.text.Text.translatable("gui.back"),
                                         (button) -> net.minecraft.client.MinecraftClient.getInstance().setScreen(parent)
                                 )
-                                .dimensions(screenWidth / 2 - 100, screenHeight / 2 + 20, 200, 20)
+                                .dimensions(this.width / 2 - 100, this.height / 2 + 20, 200, 20)
                                 .build();
 
                 this.addDrawableChild(backButton);
