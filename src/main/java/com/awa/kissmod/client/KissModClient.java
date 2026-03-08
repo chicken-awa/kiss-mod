@@ -136,6 +136,9 @@ public class KissModClient implements ClientModInitializer {
                     if (client.world != null) {
                         triggerEffect(target, client.world);
                     }
+                    if (client.player != null) {
+                        client.player.swingHand(Hand.MAIN_HAND);
+                    }
                 }
                 lastTriggerTime = currentTime;
             }
