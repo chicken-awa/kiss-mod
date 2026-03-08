@@ -10,12 +10,6 @@ import java.util.Properties;
 
 public class KissModConfig {
     private static final String CONFIG_FILE = "config/kissmod.properties";
-    private static final String RIGHT_CLICK_KEY = "rightClickEnabled";
-    private static final String SOUND_ENABLED_KEY = "soundEnabled";
-    private static final String PARTICLE_COUNT_KEY = "particleCount";
-    private static final String DEBUG_LOGGING_KEY = "debugLogging";
-    private static final String SHOW_OWN_KISS_KEY = "showOwnKiss";
-    private static final String SHOW_OTHERS_KISS_KEY = "showOthersKiss";
 
     public static boolean rightClickEnabled = true;
     public static boolean soundEnabled = true;
@@ -33,15 +27,15 @@ public class KissModConfig {
         try (InputStream input = new FileInputStream(configFile)) {
             Properties prop = new Properties();
             prop.load(input);
-            rightClickEnabled = Boolean.parseBoolean(prop.getProperty(RIGHT_CLICK_KEY, "true"));
-            soundEnabled = Boolean.parseBoolean(prop.getProperty(SOUND_ENABLED_KEY, "true"));
-            debugLogging = Boolean.parseBoolean(prop.getProperty(DEBUG_LOGGING_KEY, "false"));
-            showOwnKiss = Boolean.parseBoolean(prop.getProperty(SHOW_OWN_KISS_KEY, "true"));
-            showOthersKiss = Boolean.parseBoolean(prop.getProperty(SHOW_OTHERS_KISS_KEY, "true"));
+            rightClickEnabled = Boolean.parseBoolean(prop.getProperty("rightClickEnabled", "true"));
+            soundEnabled = Boolean.parseBoolean(prop.getProperty("soundEnabled", "true"));
+            debugLogging = Boolean.parseBoolean(prop.getProperty("debugLogging", "false"));
+            showOwnKiss = Boolean.parseBoolean(prop.getProperty("showOwnKiss", "true"));
+            showOthersKiss = Boolean.parseBoolean(prop.getProperty("showOthersKiss", "true"));
             try {
-                particleCount = Integer.parseInt(prop.getProperty(PARTICLE_COUNT_KEY, "10"));
+                particleCount = Integer.parseInt(prop.getProperty("particleCount", "10"));
             } catch (NumberFormatException e) {
-                KissMod.LOGGER.warn("粒子数量无效 ({})", prop.getProperty(PARTICLE_COUNT_KEY), e);
+                KissMod.LOGGER.warn("粒子数量无效 ({})", prop.getProperty("particleCount"), e);
                 particleCount = 10;
             }
         } catch (IOException e) {
@@ -51,29 +45,26 @@ public class KissModConfig {
 
     public static void saveConfig() {
         File configDir = new File("config");
-        if (!configDir.exists()) {
-            boolean created = configDir.mkdirs();
-            if (!created) {
-                KissMod.LOGGER.error("无法创建配置目录 `{}`", configDir.getAbsolutePath());
-                return;
-            }
+        if (!configDir.exists() && !configDir.mkdirs()) {
+            KissMod.LOGGER.error("无法创建配置目录 `{}`", configDir.getAbsolutePath());
+            return;
         }
         try (OutputStream output = new FileOutputStream(CONFIG_FILE)) {
-            Properties prop = getProperties();
-            prop.store(output, "KissMod Configuration");
+            getProperties().store(output, "KissMod Configuration");
         } catch (IOException e) {
             KissMod.LOGGER.error("保存配置文件失败", e);
         }
     }
 
-    private static @NotNull Properties getProperties() {
+    @NotNull
+    private static Properties getProperties() {
         Properties prop = new Properties();
-        prop.setProperty(RIGHT_CLICK_KEY, String.valueOf(rightClickEnabled));
-        prop.setProperty(SOUND_ENABLED_KEY, String.valueOf(soundEnabled));
-        prop.setProperty(PARTICLE_COUNT_KEY, String.valueOf(particleCount));
-        prop.setProperty(DEBUG_LOGGING_KEY, String.valueOf(debugLogging));
-        prop.setProperty(SHOW_OWN_KISS_KEY, String.valueOf(showOwnKiss));
-        prop.setProperty(SHOW_OTHERS_KISS_KEY, String.valueOf(showOthersKiss));
+        prop.setProperty("rightClickEnabled", String.valueOf(rightClickEnabled));
+        prop.setProperty("soundEnabled",      String.valueOf(soundEnabled));
+        prop.setProperty("particleCount",     String.valueOf(particleCount));
+        prop.setProperty("debugLogging",      String.valueOf(debugLogging));
+        prop.setProperty("showOwnKiss",       String.valueOf(showOwnKiss));
+        prop.setProperty("showOthersKiss",    String.valueOf(showOthersKiss));
         return prop;
     }
 
