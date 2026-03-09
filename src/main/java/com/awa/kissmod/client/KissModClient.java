@@ -85,27 +85,27 @@ public class KissModClient implements ClientModInitializer {
     }
     private void registerRightClickEvent() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (!KissModConfig.rightClickEnabled) return;
-            if (client.player == null || client.world == null) return;
-            if (client.currentScreen != null) return;
-            if (!client.options.sneakKey.isPressed()) return;
             long handle = client.getWindow().getHandle();
             boolean isRightClickPressed =
                     GLFW.glfwGetMouseButton(handle, GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
             long currentTime = System.currentTimeMillis();
 
-            if (isRightClickPressed
-                    && (!wasRightClickPressed || currentTime - lastRightClickTriggerTime >= TRIGGER_INTERVAL)) {
-
-                Entity target = getEntityFromCameraRaycast(client);
-                if (target != null) {
-                    if (KissModConfig.debugLogging) {
-                        LOGGER.info("客户端发送数据包 右键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+            if (KissModConfig.rightClickEnabled &&
+                    client.player != null &&
+                    client.world != null &&
+                    client.currentScreen == null &&
+                    client.options.sneakKey.isPressed()) {
+                if (isRightClickPressed && (!wasRightClickPressed || currentTime - lastRightClickTriggerTime >= TRIGGER_INTERVAL)) {
+                    Entity target = getEntityFromCameraRaycast(client);
+                    if (target != null) {
+                        if (KissModConfig.debugLogging) {
+                            LOGGER.info("客户端发送数据包 右键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+                        }
+                        sendKissPacket(target);
+                        triggerEffect(target, client.world);
+                        client.player.swingHand(Hand.MAIN_HAND);
+                        lastRightClickTriggerTime = currentTime;
                     }
-                    sendKissPacket(target);
-                    triggerEffect(target, client.world);
-                    client.player.swingHand(Hand.MAIN_HAND);
-                    lastRightClickTriggerTime = currentTime;
                 }
             }
             wasRightClickPressed = isRightClickPressed;
