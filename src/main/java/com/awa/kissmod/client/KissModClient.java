@@ -5,7 +5,6 @@ import com.awa.kissmod.KissModConfig;
 import com.awa.kissmod.packet.KissC2SPacket;
 import com.awa.kissmod.packet.KissS2CPacket;
 import net.fabricmc.api.*;
-import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -20,17 +19,20 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.*;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.*;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 
-
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
@@ -38,7 +40,9 @@ public class KissModClient implements ClientModInitializer {
 
     private static KeyBinding kissKey;
     private static boolean wasKeyPressed = false;
+    private static boolean wasRightClickPressed = false;
     private static long lastTriggerTime = 0;
+    private static long lastRightClickTriggerTime = 0;
     private static final long TRIGGER_INTERVAL = 175;
     private static final Logger LOGGER = KissMod.LOGGER;
 
@@ -80,21 +84,66 @@ public class KissModClient implements ClientModInitializer {
         );
     }
     private void registerRightClickEvent() {
-        UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
-            if (!KissModConfig.rightClickEnabled || !world.isClient()) return ActionResult.PASS;
-            Entity target = MinecraftClient.getInstance().targetedEntity;
-            if (player.isSneaking()&& entity != null) {
-                if (KissModConfig.debugLogging) {
-                    LOGGER.info("客户端发送数据包 右键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
-                }
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (!KissModConfig.rightClickEnabled) return;
+            if (client.player == null || client.world == null) return;
+            if (client.currentScreen != null) return;
+            if (!client.options.sneakKey.isPressed()) return;
+            long handle = client.getWindow().getHandle();
+            boolean isRightClickPressed =
+                    GLFW.glfwGetMouseButton(handle, GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
+            long currentTime = System.currentTimeMillis();
+
+            if (isRightClickPressed
+                    && (!wasRightClickPressed || currentTime - lastRightClickTriggerTime >= TRIGGER_INTERVAL)) {
+
+                Entity target = getEntityFromCameraRaycast(client);
                 if (target != null) {
+                    if (KissModConfig.debugLogging) {
+                        LOGGER.info("客户端发送数据包 右键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+                    }
                     sendKissPacket(target);
-                    triggerEffect(target, world);
-                    return ActionResult.SUCCESS;
+                    triggerEffect(target, client.world);
+                    client.player.swingHand(Hand.MAIN_HAND);
+                    lastRightClickTriggerTime = currentTime;
                 }
             }
-            return ActionResult.PASS;
+            wasRightClickPressed = isRightClickPressed;
         });
+    }
+    @Nullable
+    private static Entity getEntityFromCameraRaycast(MinecraftClient client) {
+
+        Entity cameraEntity = client.getCameraEntity();
+        if (cameraEntity == null || client.world == null) return null;
+
+        Vec3d eyePos = cameraEntity.getCameraPosVec(1.0f);
+        Vec3d rotVec = cameraEntity.getRotationVec(1.0f);
+
+        double reach = (client.player != null) ? client.player.getEntityInteractionRange() : 3.0;
+        Vec3d endPos = eyePos.add(rotVec.multiply(reach));
+
+        Box searchBox = new Box(eyePos, endPos).expand(1.0, 1.0, 1.0);
+
+        Entity closestEntity = null;
+        double closestDistSq = Double.MAX_VALUE;
+
+        for (Entity e : client.world.getOtherEntities(cameraEntity, searchBox,
+                entity -> !entity.isSpectator() && entity.isAlive())) {
+
+            Box entityBox = e.getBoundingBox().expand(0.3);
+            Optional<Vec3d> hitPoint = entityBox.raycast(eyePos, endPos);
+
+            if (hitPoint.isPresent()) {
+                double distSq = eyePos.squaredDistanceTo(hitPoint.get());
+                if (distSq < closestDistSq) {
+                    closestDistSq = distSq;
+                    closestEntity = e;
+                }
+            }
+        }
+
+        return closestEntity;
     }
 
     private void sendKissPacket(Entity target) {
@@ -127,7 +176,7 @@ public class KissModClient implements ClientModInitializer {
             long currentTime = System.currentTimeMillis();
 
             if (isKeyPressed && (!wasKeyPressed || (currentTime - lastTriggerTime >= TRIGGER_INTERVAL))) {
-                Entity target = MinecraftClient.getInstance().targetedEntity;
+                Entity target = getEntityFromCameraRaycast(client);
                 if (target != null) {
                     if (KissModConfig.debugLogging) {
                         LOGGER.info("客户端发送数据包 按键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
