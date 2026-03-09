@@ -19,5 +19,18 @@
   "option.kissmod.showOwnKiss": "Show My Kiss to Others",
   "tooltip.kissmod.showOwnKiss": "Whether to allow others to see your kiss",
   "option.kissmod.showOthersKiss": "See Others' Kisses",
-  "tooltip.kissmod.showOthersKiss": "Whether to see others' kisses"
+  "tooltip.kissmod.showOthersKiss": "Whether to see others' kisses",
+  "category.kissmod.particle": "Particle Settings",
+  "option.kissmod.centerOffsetX": "Center Offset X",
+  "tooltip.kissmod.centerOffsetX": "Fixed X-axis offset for particle spawn position",
+  "option.kissmod.centerOffsetY": "Center Offset Y",
+  "tooltip.kissmod.centerOffsetY": "Fixed Y-axis offset for particle spawn position",
+  "option.kissmod.centerOffsetZ": "Center Offset Z",
+  "tooltip.kissmod.centerOffsetZ": "Fixed Z-axis offset for particle spawn position",
+  "option.kissmod.maxOffsetX": "Max Offset X",
+  "tooltip.kissmod.maxOffsetX": "Maximum random offset on X-axis for particles",
+  "option.kissmod.maxOffsetY": "Max Offset Y",
+  "tooltip.kissmod.maxOffsetY": "Maximum random offset on Y-axis for particles",
+  "option.kissmod.maxOffsetZ": "Max Offset Z",
+  "tooltip.kissmod.maxOffsetZ": "Maximum random offset on Z-axis for particles"
 }
