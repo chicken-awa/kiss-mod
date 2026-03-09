@@ -243,14 +243,14 @@ public class KissModClient implements ClientModInitializer {
     }
 
     public static void spawnHeartParticles(World world, Entity entity) {
-        double x = entity.getX();
-        double y = entity.getY() + entity.getHeight();
-        double z = entity.getZ();
+        double x = entity.getX() + KissModConfig.centerOffsetX;
+        double y = entity.getY() + entity.getHeight() + KissModConfig.centerOffsetY;
+        double z = entity.getZ() + KissModConfig.centerOffsetZ;
 
         for (int i = 0; i < KissModConfig.particleCount; i++) {
-            double offsetX = world.random.nextDouble() - 0.5;
-            double offsetY = world.random.nextDouble() - 0.5;
-            double offsetZ = world.random.nextDouble() - 0.5;
+            double offsetX = world.random.nextDouble() * (KissModConfig.maxOffsetX * 2) - KissModConfig.maxOffsetX;
+            double offsetY = world.random.nextDouble() * (KissModConfig.maxOffsetY * 2) - KissModConfig.maxOffsetY;
+            double offsetZ = world.random.nextDouble() * (KissModConfig.maxOffsetZ * 2) - KissModConfig.maxOffsetZ;
             //? if >=1.21.5 {
             /*world.addParticleClient(
                     ParticleTypes.HEART,

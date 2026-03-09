@@ -18,6 +18,13 @@ public class KissModConfig {
     public static boolean showOwnKiss = true;
     public static boolean showOthersKiss = true;
 
+    public static double centerOffsetX = 0.0;
+    public static double centerOffsetY = 0.0;
+    public static double centerOffsetZ = 0.0;
+    public static double maxOffsetX = 0.5;
+    public static double maxOffsetY = 0.5;
+    public static double maxOffsetZ = 0.5;
+
     public static void loadConfig() {
         File configFile = new File(CONFIG_FILE);
         if (!configFile.exists()) {
@@ -32,12 +39,13 @@ public class KissModConfig {
             debugLogging = Boolean.parseBoolean(prop.getProperty("debugLogging", "false"));
             showOwnKiss = Boolean.parseBoolean(prop.getProperty("showOwnKiss", "true"));
             showOthersKiss = Boolean.parseBoolean(prop.getProperty("showOthersKiss", "true"));
-            try {
-                particleCount = Integer.parseInt(prop.getProperty("particleCount", "10"));
-            } catch (NumberFormatException e) {
-                KissMod.LOGGER.warn("粒子数量无效 ({})", prop.getProperty("particleCount"), e);
-                particleCount = 10;
-            }
+            particleCount = Integer.parseInt(prop.getProperty("particleCount", "10"));
+            centerOffsetX = Double.parseDouble(prop.getProperty("centerOffsetX", "0.0"));
+            centerOffsetY = Double.parseDouble(prop.getProperty("centerOffsetY", "0.0"));
+            centerOffsetZ = Double.parseDouble(prop.getProperty("centerOffsetZ", "0.0"));
+            maxOffsetX = Double.parseDouble(prop.getProperty("maxOffsetX", "0.5"));
+            maxOffsetY = Double.parseDouble(prop.getProperty("maxOffsetY", "0.5"));
+            maxOffsetZ = Double.parseDouble(prop.getProperty("maxOffsetZ", "0.5"));
         } catch (IOException e) {
             saveConfig();
         }
@@ -65,6 +73,12 @@ public class KissModConfig {
         prop.setProperty("debugLogging",      String.valueOf(debugLogging));
         prop.setProperty("showOwnKiss",       String.valueOf(showOwnKiss));
         prop.setProperty("showOthersKiss",    String.valueOf(showOthersKiss));
+        prop.setProperty("centerOffsetX",     String.valueOf(centerOffsetX));
+        prop.setProperty("centerOffsetY",     String.valueOf(centerOffsetY));
+        prop.setProperty("centerOffsetZ",     String.valueOf(centerOffsetZ));
+        prop.setProperty("maxOffsetX",        String.valueOf(maxOffsetX));
+        prop.setProperty("maxOffsetY",        String.valueOf(maxOffsetY));
+        prop.setProperty("maxOffsetZ",        String.valueOf(maxOffsetZ));
         return prop;
     }
 

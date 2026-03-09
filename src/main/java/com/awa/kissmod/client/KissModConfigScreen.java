@@ -55,6 +55,47 @@ public class KissModConfigScreen {
                 .setSaveConsumer(state -> KissModConfig.debugLogging = state)
                 .build());
 
+        ConfigCategory particle = builder.getOrCreateCategory(Text.translatable("category.kissmod.particle"));
+
+        particle.addEntry(entryBuilder.startDoubleField(Text.translatable("option.kissmod.centerOffsetX"), KissModConfig.centerOffsetX)
+                .setDefaultValue(0.0)
+                .setTooltip(Text.translatable("tooltip.kissmod.centerOffsetX"))
+                .setSaveConsumer(state -> KissModConfig.centerOffsetX = state)
+                .build());
+
+        particle.addEntry(entryBuilder.startDoubleField(Text.translatable("option.kissmod.centerOffsetY"), KissModConfig.centerOffsetY)
+                .setDefaultValue(0.0)
+                .setTooltip(Text.translatable("tooltip.kissmod.centerOffsetY"))
+                .setSaveConsumer(state -> KissModConfig.centerOffsetY = state)
+                .build());
+
+        particle.addEntry(entryBuilder.startDoubleField(Text.translatable("option.kissmod.centerOffsetZ"), KissModConfig.centerOffsetZ)
+                .setDefaultValue(0.0)
+                .setTooltip(Text.translatable("tooltip.kissmod.centerOffsetZ"))
+                .setSaveConsumer(state -> KissModConfig.centerOffsetZ = state)
+                .build());
+
+        particle.addEntry(entryBuilder.startDoubleField(Text.translatable("option.kissmod.maxOffsetX"), KissModConfig.maxOffsetX)
+                .setDefaultValue(0.5)
+                .setMin(0.0)
+                .setTooltip(Text.translatable("tooltip.kissmod.maxOffsetX"))
+                .setSaveConsumer(state -> KissModConfig.maxOffsetX = state)
+                .build());
+
+        particle.addEntry(entryBuilder.startDoubleField(Text.translatable("option.kissmod.maxOffsetY"), KissModConfig.maxOffsetY)
+                .setDefaultValue(0.5)
+                .setMin(0.0)
+                .setTooltip(Text.translatable("tooltip.kissmod.maxOffsetY"))
+                .setSaveConsumer(state -> KissModConfig.maxOffsetY = state)
+                .build());
+
+        particle.addEntry(entryBuilder.startDoubleField(Text.translatable("option.kissmod.maxOffsetZ"), KissModConfig.maxOffsetZ)
+                .setDefaultValue(0.5)
+                .setMin(0.0)
+                .setTooltip(Text.translatable("tooltip.kissmod.maxOffsetZ"))
+                .setSaveConsumer(state -> KissModConfig.maxOffsetZ = state)
+                .build());
+
         return builder.build();
     }
 }
