@@ -64,14 +64,6 @@ public class KissModConfigScreen {
                 .setSaveConsumer(state -> KissModConfig.soundPitch = state)
                 .build());
 
-        general.addEntry(entryBuilder.startIntField(Text.translatable("option.kissmod.particleCount"), KissModConfig.particleCount)
-                .setDefaultValue(10)
-                .setMin(0)
-                .setMax(100)
-                .setTooltip(Text.translatable("tooltip.kissmod.particleCount"))
-                .setSaveConsumer(state -> KissModConfig.particleCount = state)
-                .build());
-
         general.addEntry(entryBuilder.startBooleanToggle(Text.translatable("option.kissmod.debugLogging"), KissModConfig.debugLogging)
                 .setDefaultValue(false)
                 .setTooltip(Text.translatable("tooltip.kissmod.debugLogging"))
@@ -79,6 +71,14 @@ public class KissModConfigScreen {
                 .build());
 
         ConfigCategory particle = builder.getOrCreateCategory(Text.translatable("category.kissmod.particle"));
+
+        particle.addEntry(entryBuilder.startIntField(Text.translatable("option.kissmod.particleCount"), KissModConfig.particleCount)
+                .setDefaultValue(10)
+                .setMin(0)
+                .setMax(100)
+                .setTooltip(Text.translatable("tooltip.kissmod.particleCount"))
+                .setSaveConsumer(state -> KissModConfig.particleCount = state)
+                .build());
 
         particle.addEntry(entryBuilder.startDoubleField(Text.translatable("option.kissmod.centerOffsetX"), KissModConfig.centerOffsetX)
                 .setDefaultValue(0.0)
