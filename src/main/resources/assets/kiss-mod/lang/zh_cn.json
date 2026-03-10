@@ -24,6 +24,8 @@
   "tooltip.kissmod.showOwnKiss": "是否把自己的亲亲给别人看",
   "option.kissmod.showOthersKiss": "看看别人的亲亲",
   "tooltip.kissmod.showOthersKiss": "是否要看别人的亲亲",
+  "option.kissmod.triggerCooldown": "长按触发冷却 (毫秒)",
+  "tooltip.kissmod.triggerCooldown": "长按触发亲亲之间的冷却时间，单位毫秒",
   "category.kissmod.particle": "粒子设置",
   "option.kissmod.centerOffsetX": "中心偏移 X",
   "tooltip.kissmod.centerOffsetX": "粒子生成位置的 X 轴固定偏移",
