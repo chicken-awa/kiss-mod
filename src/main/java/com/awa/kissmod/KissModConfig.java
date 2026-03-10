@@ -6,10 +6,13 @@ import net.minecraft.client.gui.screen.Screen;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 public class KissModConfig {
-    private static final String CONFIG_FILE = "config/kissmod.properties";
+    private static final Path CONFIG_PATH = 
+            FabricLoader.getInstance().getConfigDir().resolve("kissmod.properties");
 
     public static boolean rightClickEnabled = true;
     public static boolean soundEnabled = true;
@@ -26,12 +29,11 @@ public class KissModConfig {
     public static double maxOffsetZ = 0.5;
 
     public static void loadConfig() {
-        File configFile = new File(CONFIG_FILE);
-        if (!configFile.exists()) {
+        if (!Files.exists(CONFIG_PATH)) {
             saveConfig();
             return;
         }
-        try (InputStream input = new FileInputStream(configFile)) {
+        try (InputStream input = Files.newInputStream(CONFIG_PATH)) {
             Properties prop = new Properties();
             prop.load(input);
             rightClickEnabled = Boolean.parseBoolean(prop.getProperty("rightClickEnabled", "true"));
@@ -52,12 +54,7 @@ public class KissModConfig {
     }
 
     public static void saveConfig() {
-        File configDir = new File("config");
-        if (!configDir.exists() && !configDir.mkdirs()) {
-            KissMod.LOGGER.error("无法创建配置目录 `{}`", configDir.getAbsolutePath());
-            return;
-        }
-        try (OutputStream output = new FileOutputStream(CONFIG_FILE)) {
+        try (OutputStream output = Files.newOutputStream(CONFIG_PATH)) {
             getProperties().store(output, "KissMod Configuration");
         } catch (IOException e) {
             KissMod.LOGGER.error("保存配置文件失败", e);
