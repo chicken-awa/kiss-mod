@@ -41,6 +41,22 @@ public class KissModConfigScreen {
                 .setSaveConsumer(state -> KissModConfig.soundEnabled = state)
                 .build());
 
+        general.addEntry(entryBuilder.startDoubleField(Text.translatable("option.kissmod.soundVolume"), KissModConfig.soundVolume)
+                .setDefaultValue(1.0)
+                .setMin(0.0)
+                .setMax(1.0)
+                .setTooltip(Text.translatable("tooltip.kissmod.soundVolume"))
+                .setSaveConsumer(state -> KissModConfig.soundVolume = state)
+                .build());
+
+        general.addEntry(entryBuilder.startDoubleField(Text.translatable("option.kissmod.soundPitch"), KissModConfig.soundPitch)
+                .setDefaultValue(1.0)
+                .setMin(0.5)
+                .setMax(2.0)
+                .setTooltip(Text.translatable("tooltip.kissmod.soundPitch"))
+                .setSaveConsumer(state -> KissModConfig.soundPitch = state)
+                .build());
+
         general.addEntry(entryBuilder.startIntField(Text.translatable("option.kissmod.particleCount"), KissModConfig.particleCount)
                 .setDefaultValue(10)
                 .setMin(0)

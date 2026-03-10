@@ -16,6 +16,8 @@ public class KissModConfig {
 
     public static boolean rightClickEnabled = true;
     public static boolean soundEnabled = true;
+    public static double soundVolume = 1.0;
+    public static double soundPitch = 1.0;
     public static int particleCount = 10;
     public static boolean debugLogging = false;
     public static boolean showOwnKiss = true;
@@ -38,6 +40,8 @@ public class KissModConfig {
             prop.load(input);
             rightClickEnabled = Boolean.parseBoolean(prop.getProperty("rightClickEnabled", "true"));
             soundEnabled = Boolean.parseBoolean(prop.getProperty("soundEnabled", "true"));
+            soundVolume = Double.parseDouble(prop.getProperty("soundVolume", "1.0"));
+            soundPitch = Double.parseDouble(prop.getProperty("soundPitch", "1.0"));
             debugLogging = Boolean.parseBoolean(prop.getProperty("debugLogging", "false"));
             showOwnKiss = Boolean.parseBoolean(prop.getProperty("showOwnKiss", "true"));
             showOthersKiss = Boolean.parseBoolean(prop.getProperty("showOthersKiss", "true"));
@@ -66,6 +70,8 @@ public class KissModConfig {
         Properties prop = new Properties();
         prop.setProperty("rightClickEnabled", String.valueOf(rightClickEnabled));
         prop.setProperty("soundEnabled",      String.valueOf(soundEnabled));
+        prop.setProperty("soundVolume",       String.valueOf(soundVolume));
+        prop.setProperty("soundPitch",        String.valueOf(soundPitch));
         prop.setProperty("particleCount",     String.valueOf(particleCount));
         prop.setProperty("debugLogging",      String.valueOf(debugLogging));
         prop.setProperty("showOwnKiss",       String.valueOf(showOwnKiss));
