@@ -236,7 +236,8 @@ public class KissModClient implements ClientModInitializer {
                         target.getX(), target.getY(), target.getZ(),
                         randomSound,
                         SoundCategory.PLAYERS,
-                        1.0F, 1.0F
+                        (float) KissModConfig.soundVolume,
+                        (float) KissModConfig.soundPitch
                 );
             }
         }
