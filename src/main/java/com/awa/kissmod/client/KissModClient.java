@@ -43,7 +43,6 @@ public class KissModClient implements ClientModInitializer {
     private static boolean wasRightClickPressed = false;
     private static long lastTriggerTime = 0;
     private static long lastRightClickTriggerTime = 0;
-    private static final long TRIGGER_INTERVAL = 175;
     private static final Logger LOGGER = KissMod.LOGGER;
 
     @Override
@@ -95,7 +94,7 @@ public class KissModClient implements ClientModInitializer {
                     client.world != null &&
                     client.currentScreen == null &&
                     client.options.sneakKey.isPressed()) {
-                if (isRightClickPressed && (!wasRightClickPressed || currentTime - lastRightClickTriggerTime >= TRIGGER_INTERVAL)) {
+                if (isRightClickPressed && (!wasRightClickPressed || currentTime - lastRightClickTriggerTime >= KissModConfig.triggerCooldown)) {
                     Entity target = getEntityFromCameraRaycast(client);
                     if (target != null) {
                         if (KissModConfig.debugLogging) {
@@ -175,7 +174,7 @@ public class KissModClient implements ClientModInitializer {
             boolean isKeyPressed = kissKey.isPressed();
             long currentTime = System.currentTimeMillis();
 
-            if (isKeyPressed && (!wasKeyPressed || (currentTime - lastTriggerTime >= TRIGGER_INTERVAL))) {
+            if (isKeyPressed && (!wasKeyPressed || (currentTime - lastTriggerTime >= KissModConfig.triggerCooldown))) {
                 Entity target = getEntityFromCameraRaycast(client);
                 if (target != null) {
                     if (KissModConfig.debugLogging) {

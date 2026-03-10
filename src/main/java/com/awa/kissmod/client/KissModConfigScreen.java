@@ -35,6 +35,13 @@ public class KissModConfigScreen {
                 .setSaveConsumer(state -> KissModConfig.showOthersKiss = state)
                 .build());
 
+        general.addEntry(entryBuilder.startIntField(Text.translatable("option.kissmod.triggerCooldown"), KissModConfig.triggerCooldown)
+                .setDefaultValue(175)
+                .setMin(0)
+                .setTooltip(Text.translatable("tooltip.kissmod.triggerCooldown"))
+                .setSaveConsumer(state -> KissModConfig.triggerCooldown = state)
+                .build());
+
         general.addEntry(entryBuilder.startBooleanToggle(Text.translatable("option.kissmod.soundEnabled"), KissModConfig.soundEnabled)
                 .setDefaultValue(true)
                 .setTooltip(Text.translatable("tooltip.kissmod.soundEnabled"))
