@@ -69,13 +69,12 @@ public class KissMod implements ModInitializer {
 			//?}
 			Entity target = ((ServerWorld) world).getEntity(targetUuid);
 			if (target != null) {
-				// 向所有附近玩家发送数据包
-					KissS2CPacket broadcastPayload = new KissS2CPacket(target.getUuid(), senderUuid);
+				// 向所有附近玩家发送数据包 排除发送者自己
+				KissS2CPacket broadcastPayload = new KissS2CPacket(target.getUuid(), senderUuid);
 				for (ServerPlayerEntity nearbyPlayer : ((ServerWorld) world).getPlayers()) {
-					// 排除发送者自己
-					if (!nearbyPlayer.getUuid().equals(senderUuid)) {
-						ServerPlayNetworking.send(nearbyPlayer, broadcastPayload);
-					}
+					if (target.squaredDistanceTo(nearbyPlayer) > 192 * 192) continue;
+					if (nearbyPlayer.getUuid().equals(senderUuid)) continue;
+					ServerPlayNetworking.send(nearbyPlayer, broadcastPayload);
 				}
 			}
 		});
