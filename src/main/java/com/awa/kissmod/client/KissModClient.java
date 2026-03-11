@@ -195,6 +195,9 @@ public class KissModClient implements ClientModInitializer {
     }
     private void registerClientNetworkReceiver() {
         ClientPlayNetworking.registerGlobalReceiver(KissS2CPacket.TYPE, (payload, context) -> {
+            if (KissModConfig.debugLogging) {
+                LOGGER.info("接收到了来自服务器的数据包 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+            }
             MinecraftClient client = MinecraftClient.getInstance();
             ClientWorld world = client.world;
 
@@ -204,9 +207,6 @@ public class KissModClient implements ClientModInitializer {
             UUID targetUuid = payload.getPattedEntityUuid();
             for (Entity entity : world.getEntities()) {
                 if (entity.getUuid().equals(targetUuid)) {
-                    if (KissModConfig.debugLogging) {
-                        LOGGER.info("接收到了来自服务器的数据包 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
-                    }
                     triggerEffect(entity, world);
                     break;
                 }
@@ -254,12 +254,15 @@ public class KissModClient implements ClientModInitializer {
             //? if >=1.21.5 {
             /*world.addParticleClient(
                     ParticleTypes.HEART,
+                    true,
+                    false,
                     x + offsetX, y + offsetY, z + offsetZ,
                     0.0, 0.0, 0.0
             );
-            *///?} else{
-            world.addParticle(
+            *///? } else {
+            world.addImportantParticle(
                     ParticleTypes.HEART,
+                    true,
                     x + offsetX, y + offsetY, z + offsetZ,
                     0.0, 0.0, 0.0
             );//? }
