@@ -2,11 +2,14 @@ package com.awa.kissmod.client;
 
 import com.awa.kissmod.KissMod;
 import com.awa.kissmod.KissModConfig;
+import com.awa.kissmod.packet.HandshakeC2SPacket;
+import com.awa.kissmod.packet.HandshakeS2CPacket;
 import com.awa.kissmod.packet.KissC2SPacket;
 import com.awa.kissmod.packet.KissS2CPacket;
 import net.fabricmc.api.*;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
@@ -43,6 +46,7 @@ public class KissModClient implements ClientModInitializer {
     private static boolean wasRightClickPressed = false;
     private static long lastTriggerTime = 0;
     private static long lastRightClickTriggerTime = 0;
+    private static boolean serverHasMod = false;
     private static final Logger LOGGER = KissMod.LOGGER;
 
     @Override
@@ -52,12 +56,20 @@ public class KissModClient implements ClientModInitializer {
         } else {
             KissMod.LOGGER.info("Cloth Config not detected");
         }
+        registerConnectionEvents();
         registerRightClickEvent();
         registerKeyBinding();
         registerClientNetworkReceiver();
         registerCommands();
         KissModConfig.loadConfig();
         System.out.println("KissModClient initialized!");
+    }
+//加入服务器发握手包
+    private void registerConnectionEvents() {
+        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+            serverHasMod = false;
+            ClientPlayNetworking.send(new HandshakeC2SPacket());
+        });
     }
     private void registerCommands() {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
@@ -98,7 +110,7 @@ public class KissModClient implements ClientModInitializer {
                     Entity target = getEntityFromCameraRaycast(client);
                     if (target != null) {
                         if (KissModConfig.debugLogging) {
-                            LOGGER.info("客户端发送数据包 右键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+                            LOGGER.info("客户端将发送数据包 右键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
                         }
                         sendKissPacket(target);
                         triggerEffect(target, client.world);
@@ -130,7 +142,7 @@ public class KissModClient implements ClientModInitializer {
         for (Entity e : client.world.getOtherEntities(cameraEntity, searchBox,
                 entity -> !entity.isSpectator() && entity.isAlive())) {
 
-            Box entityBox = e.getBoundingBox().expand(0.3);
+            Box entityBox = e.getBoundingBox();
             Optional<Vec3d> hitPoint = entityBox.raycast(eyePos, endPos);
 
             if (hitPoint.isPresent()) {
@@ -146,11 +158,15 @@ public class KissModClient implements ClientModInitializer {
     }
 
     private void sendKissPacket(Entity target) {
+        if (!serverHasMod) return;
         UUID senderUuid = null;
         if (MinecraftClient.getInstance().player != null) {
             senderUuid = MinecraftClient.getInstance().player.getUuid();
         }
         if (KissModConfig.showOwnKiss) {
+            if (KissModConfig.debugLogging) {
+                LOGGER.info("客户端发送数据包{}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+            }
             ClientPlayNetworking.send(new KissC2SPacket(target.getUuid(), senderUuid));
         }
     }
@@ -178,7 +194,7 @@ public class KissModClient implements ClientModInitializer {
                 Entity target = getEntityFromCameraRaycast(client);
                 if (target != null) {
                     if (KissModConfig.debugLogging) {
-                        LOGGER.info("客户端发送数据包 按键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+                        LOGGER.info("客户端将发送数据包 按键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
                     }
                     sendKissPacket(target);
                     if (client.world != null) {
@@ -211,6 +227,11 @@ public class KissModClient implements ClientModInitializer {
                     break;
                 }
             }
+        });
+
+        ClientPlayNetworking.registerGlobalReceiver(HandshakeS2CPacket.TYPE, (payload, context) -> {
+            serverHasMod = true;
+            LOGGER.info("服务器安装了kiss-mod");
         });
     }
 

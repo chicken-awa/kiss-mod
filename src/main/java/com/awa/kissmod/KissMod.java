@@ -1,5 +1,7 @@
 package com.awa.kissmod;
 
+import com.awa.kissmod.packet.HandshakeC2SPacket;
+import com.awa.kissmod.packet.HandshakeS2CPacket;
 import com.awa.kissmod.packet.KissC2SPacket;
 import com.awa.kissmod.packet.KissS2CPacket;
 import net.fabricmc.api.*;
@@ -48,9 +50,11 @@ public class KissMod implements ModInitializer {
 			CUSTOM_SOUND2_ID,
 			SoundEvent.of(CUSTOM_SOUND2_ID)
 	);
-			static {
+	static {
 			PayloadTypeRegistry.playS2C().register(KissS2CPacket.TYPE, KissS2CPacket.CODEC);
 			PayloadTypeRegistry.playC2S().register(KissC2SPacket.TYPE, KissC2SPacket.CODEC);
+			PayloadTypeRegistry.playS2C().register(HandshakeS2CPacket.TYPE, HandshakeS2CPacket.CODEC);
+			PayloadTypeRegistry.playC2S().register(HandshakeC2SPacket.TYPE, HandshakeC2SPacket.CODEC);
 		}
 	@Override
 	public void onInitialize() {
@@ -78,5 +82,7 @@ public class KissMod implements ModInitializer {
 				}
 			}
 		});
+
+		ServerPlayNetworking.registerGlobalReceiver(HandshakeC2SPacket.TYPE, (payload, context) -> ServerPlayNetworking.send(context.player(), new HandshakeS2CPacket()));
 	}
 }
