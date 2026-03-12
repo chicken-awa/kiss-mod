@@ -1,6 +1,5 @@
 package com.awa.kissmod.packet;
 
-import com.awa.kissmod.KissMod;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.util.Identifier;
@@ -8,23 +7,12 @@ import net.minecraft.util.Identifier;
 import java.util.UUID;
 
 public class KissC2SPacket implements CustomPayload {
-    public static final Identifier PACKET_ID = typeId("kiss_entity_c2s_packet");
+    public static final Identifier PACKET_ID = Identifier.of("kiss-mod", "kiss_entity_c2s_packet");
     public static final Id<KissC2SPacket> TYPE = new Id<>(PACKET_ID);
     public static final net.minecraft.network.codec.PacketCodec<RegistryByteBuf, KissC2SPacket> CODEC = net.minecraft.network.packet.CustomPayload.codecOf(KissC2SPacket::write, KissC2SPacket::new);
 
     private final UUID kissedEntityUuid;
     private final UUID senderUuid;
-
-    public static Identifier typeId(String id) {
-        String namespace = KissMod.MOD_ID;
-        String path = id;
-        String[] split = path.split(":");
-        if (split.length >= 2) {
-            namespace = split[0];
-            path      = split[1];
-        }
-        return Identifier.of(namespace, path);
-    }
 
     public KissC2SPacket(UUID kissedEntityUuid, UUID senderUuid) {
         this.kissedEntityUuid = kissedEntityUuid;
