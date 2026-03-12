@@ -29,6 +29,7 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	modImplementation "maven.modrinth:modmenu:${project.modmenu_version}"
 	modImplementation "me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}"
+	include modApi("maven.modrinth:proxlib:${project.proxlib_version}")
 }
 
 processResources {
