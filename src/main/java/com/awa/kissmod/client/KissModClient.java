@@ -68,8 +68,40 @@ public class KissModClient implements ClientModInitializer {
     private void registerConnectionEvents() {
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             serverHasMod = false;
-            ClientPlayNetworking.send(new HandshakeC2SPacket());
+            sendHandshakeWithRetry();
         });
+    }
+
+    private void sendHandshakeWithRetry() {
+        if (KissModConfig.debugLogging) {
+            LOGGER.info("发送握手包");
+        }
+        ClientPlayNetworking.send(new HandshakeC2SPacket());
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+                if (!serverHasMod) {
+                    if (KissModConfig.debugLogging) {
+                        LOGGER.info("握手包重发(1/2)");
+                    }
+                    MinecraftClient.getInstance().execute(() -> ClientPlayNetworking.send(new HandshakeC2SPacket()));
+                }
+            } catch (InterruptedException e) {
+                return;
+            }
+
+            try {
+                Thread.sleep(5000);
+                if (!serverHasMod) {
+                    if (KissModConfig.debugLogging) {
+                        LOGGER.info("握手包重发(2/2)");
+                    }
+                    MinecraftClient.getInstance().execute(() -> ClientPlayNetworking.send(new HandshakeC2SPacket()));
+                }
+            } catch (InterruptedException ignored) {
+            }
+        }).start();
     }
     private void registerCommands() {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
