@@ -1,8 +1,10 @@
 {
   "key.kiss-mod.kiss": "Kiss",
   "key.category.kiss-mod.keybindings": "Kiss Mod",
-  "kiss-mod.toggle.enabled": "Sneak right-click trigger is enabled",
-  "kiss-mod.toggle.disabled": "Sneak right-click trigger is disabled",
+  "kiss-mod.rightclick.enabled": "Sneak right-click trigger is enabled",
+  "kiss-mod.rightclick.disabled": "Sneak right-click trigger is disabled",
+  "kiss-mod.proxlib.enabled": "ProxLib is enabled",
+  "kiss-mod.proxlib.disabled": "ProxLib is disabled",
   "title.kissmod.config": "Kiss Mod Configuration",
   "category.kissmod.general": "General Settings",
   "option.kissmod.rightClickEnabled": "Sneak Right-Click Trigger",

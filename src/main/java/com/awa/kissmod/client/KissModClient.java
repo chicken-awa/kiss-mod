@@ -122,7 +122,7 @@ public class KissModClient implements ClientModInitializer {
                         .executes(context -> {
                             KissModConfig.rightClickEnabled = !KissModConfig.rightClickEnabled;
                             KissModConfig.saveConfig();
-                            String translationKey = KissModConfig.rightClickEnabled ? "kiss-mod.toggle.enabled" : "kiss-mod.toggle.disabled";
+                            String translationKey = KissModConfig.rightClickEnabled ? "kiss-mod.rightclick.enabled" : "kiss-mod.rightclick.disabled";
                             context.getSource().sendFeedback(Text.translatable(translationKey));
                             return 1;
                         })
@@ -131,7 +131,29 @@ public class KissModClient implements ClientModInitializer {
                                     boolean state = BoolArgumentType.getBool(context, "state");
                                     KissModConfig.rightClickEnabled = state;
                                     KissModConfig.saveConfig();
-                                    String translationKey = state ? "kiss-mod.toggle.enabled" : "kiss-mod.toggle.disabled";
+                                    String translationKey = state ? "kiss-mod.rightclick.enabled" : "kiss-mod.rightclick.disabled";
+                                    context.getSource().sendFeedback(Text.translatable(translationKey));
+                                    return 1;
+                                })
+                        )
+                )
+        );
+
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
+                dispatcher.register(literal("kissmod-proxlib")
+                        .executes(context -> {
+                            KissModConfig.proxLibEnabled = !KissModConfig.proxLibEnabled;
+                            KissModConfig.saveConfig();
+                            String translationKey = KissModConfig.proxLibEnabled ? "kiss-mod.proxlib.enabled" : "kiss-mod.proxlib.disabled";
+                            context.getSource().sendFeedback(Text.translatable(translationKey));
+                            return 1;
+                        })
+                        .then(argument("state", BoolArgumentType.bool())
+                                .executes(context -> {
+                                    boolean state = BoolArgumentType.getBool(context, "state");
+                                    KissModConfig.proxLibEnabled = state;
+                                    KissModConfig.saveConfig();
+                                    String translationKey = state ? "kiss-mod.proxlib.enabled" : "kiss-mod.proxlib.disabled";
                                     context.getSource().sendFeedback(Text.translatable(translationKey));
                                     return 1;
                                 })

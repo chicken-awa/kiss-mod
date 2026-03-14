@@ -1,8 +1,10 @@
 {
   "key.kiss-mod.kiss": "亲亲",
   "key.category.kiss-mod.keybindings": "Kiss Mod",
-  "kiss-mod.toggle.enabled": "潜行右键触发已 启用",
-  "kiss-mod.toggle.disabled": "潜行右键触发已 禁用",
+  "kiss-mod.rightclick.enabled": "潜行右键触发已启用",
+  "kiss-mod.rightclick.disabled": "潜行右键触发已禁用",
+  "kiss-mod.proxlib.enabled": "ProxLib 已启用",
+  "kiss-mod.proxlib.disabled": "ProxLib 已禁用",
   "title.kissmod.config": "Kiss Mod 配置",
   "category.kissmod.general": "通用设置",
   "option.kissmod.rightClickEnabled": "潜行右键触发",
@@ -40,5 +42,7 @@
   "option.kissmod.maxOffsetY": "最大偏移 Y",
   "tooltip.kissmod.maxOffsetY": "粒子随机范围的 Y 轴最大偏移",
   "option.kissmod.maxOffsetZ": "最大偏移 Z",
-  "tooltip.kissmod.maxOffsetZ": "粒子随机范围的 Z 轴最大偏移"
+  "tooltip.kissmod.maxOffsetZ": "粒子随机范围的 Z 轴最大偏移",
+  "kiss-mod.toggle.enabled": "Sneak right-click trigger is enabled",
+  "kiss-mod.toggle.disabled": "Sneak right-click trigger is disabled"
 }
