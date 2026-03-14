@@ -26,6 +26,8 @@
   "tooltip.kissmod.showOthersKiss": "是否要看别人的亲亲",
   "option.kissmod.triggerCooldown": "长按触发冷却 (毫秒)",
   "tooltip.kissmod.triggerCooldown": "长按触发亲亲之间的冷却时间，单位毫秒",
+  "option.kissmod.proxLibEnabled": "启用 ProxLib",
+  "tooltip.kissmod.proxLibEnabled": "无需服务端安装kiss mod就能让附近玩家看到你的亲亲",
   "category.kissmod.particle": "粒子设置",
   "option.kissmod.centerOffsetX": "中心偏移 X",
   "tooltip.kissmod.centerOffsetX": "粒子生成位置的 X 轴固定偏移",

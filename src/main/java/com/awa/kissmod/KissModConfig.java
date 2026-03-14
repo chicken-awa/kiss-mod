@@ -23,6 +23,7 @@ public class KissModConfig {
     public static boolean showOwnKiss = true;
     public static boolean showOthersKiss = true;
     public static int triggerCooldown = 175;
+    public static boolean proxLibEnabled = false;
 
     public static double centerOffsetX = 0.0;
     public static double centerOffsetY = 0.0;
@@ -47,6 +48,7 @@ public class KissModConfig {
             showOwnKiss = Boolean.parseBoolean(prop.getProperty("showOwnKiss", "true"));
             showOthersKiss = Boolean.parseBoolean(prop.getProperty("showOthersKiss", "true"));
             triggerCooldown = Integer.parseInt(prop.getProperty("triggerCooldown", "175"));
+            proxLibEnabled = Boolean.parseBoolean(prop.getProperty("proxLibEnabled", "false"));
             particleCount = Integer.parseInt(prop.getProperty("particleCount", "10"));
             centerOffsetX = Double.parseDouble(prop.getProperty("centerOffsetX", "0.0"));
             centerOffsetY = Double.parseDouble(prop.getProperty("centerOffsetY", "0.0"));
@@ -79,6 +81,7 @@ public class KissModConfig {
         prop.setProperty("showOwnKiss",       String.valueOf(showOwnKiss));
         prop.setProperty("showOthersKiss",    String.valueOf(showOthersKiss));
         prop.setProperty("triggerCooldown",   String.valueOf(triggerCooldown));
+        prop.setProperty("proxLibEnabled",    String.valueOf(proxLibEnabled));
         prop.setProperty("centerOffsetX",     String.valueOf(centerOffsetX));
         prop.setProperty("centerOffsetY",     String.valueOf(centerOffsetY));
         prop.setProperty("centerOffsetZ",     String.valueOf(centerOffsetZ));
