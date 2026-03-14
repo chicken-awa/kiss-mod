@@ -26,6 +26,8 @@
   "tooltip.kissmod.showOthersKiss": "Whether to see others' kisses",
   "option.kissmod.triggerCooldown": "Hold-to-trigger Cooldown (ms)",
   "tooltip.kissmod.triggerCooldown": "Cooldown time between kiss triggers when holding, in milliseconds",
+  "option.kissmod.proxLibEnabled": "Enable ProxLib",
+  "tooltip.kissmod.proxLibEnabled": "Allows nearby players to see your kisses without requiring the kiss mod to be installed on the server",
   "category.kissmod.particle": "Particle Settings",
   "option.kissmod.centerOffsetX": "Center Offset X",
   "tooltip.kissmod.centerOffsetX": "Fixed X-axis offset for particle spawn position",

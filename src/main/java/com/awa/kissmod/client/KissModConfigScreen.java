@@ -70,6 +70,12 @@ public class KissModConfigScreen {
                 .setSaveConsumer(state -> KissModConfig.debugLogging = state)
                 .build());
 
+        general.addEntry(entryBuilder.startBooleanToggle(Text.translatable("option.kissmod.proxLibEnabled"), KissModConfig.proxLibEnabled)
+                .setDefaultValue(false)
+                .setTooltip(Text.translatable("tooltip.kissmod.proxLibEnabled"))
+                .setSaveConsumer(state -> KissModConfig.proxLibEnabled = state)
+                .build());
+
         ConfigCategory particle = builder.getOrCreateCategory(Text.translatable("category.kissmod.particle"));
 
         particle.addEntry(entryBuilder.startIntField(Text.translatable("option.kissmod.particleCount"), KissModConfig.particleCount)

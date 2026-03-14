@@ -6,6 +6,9 @@ import com.awa.kissmod.packet.HandshakeC2SPacket;
 import com.awa.kissmod.packet.HandshakeS2CPacket;
 import com.awa.kissmod.packet.KissC2SPacket;
 import com.awa.kissmod.packet.KissS2CPacket;
+import com.awa.kissmod.proxlib.ProxLibPacketIds;
+import me.enderkill98.proxlib.ProxPacketIdentifier;
+import me.enderkill98.proxlib.client.ProxLib;
 import net.fabricmc.api.*;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -33,6 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
+import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -60,6 +64,7 @@ public class KissModClient implements ClientModInitializer {
         registerRightClickEvent();
         registerKeyBinding();
         registerClientNetworkReceiver();
+        registerProxLibHandler();
         registerCommands();
         KissModConfig.loadConfig();
         System.out.println("KissModClient initialized!");
@@ -190,7 +195,12 @@ public class KissModClient implements ClientModInitializer {
     }
 
     private void sendKissPacket(Entity target) {
-        if (!serverHasMod) return;
+        if (!serverHasMod) {
+            if (KissModConfig.proxLibEnabled) {
+                sendProxLibPacket(target);
+            }
+            return;
+        }
         UUID senderUuid = null;
         if (MinecraftClient.getInstance().player != null) {
             senderUuid = MinecraftClient.getInstance().player.getUuid();
@@ -201,6 +211,71 @@ public class KissModClient implements ClientModInitializer {
             }
             ClientPlayNetworking.send(new KissC2SPacket(target.getUuid(), senderUuid));
         }
+    }
+    
+    private void sendProxLibPacket(Entity target) {
+        if (!KissModConfig.proxLibEnabled) return;
+        if (!KissModConfig.showOwnKiss) return;
+        UUID senderUuid = null;
+        if (MinecraftClient.getInstance().player != null) {
+            senderUuid = MinecraftClient.getInstance().player.getUuid();
+        }
+        
+        try {
+            ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+            DataOutputStream dataOut = new DataOutputStream(bytesOut);
+            
+            dataOut.writeLong(target.getUuid().getMostSignificantBits());
+            dataOut.writeLong(target.getUuid().getLeastSignificantBits());
+            if (senderUuid != null) {
+                dataOut.writeLong(senderUuid.getMostSignificantBits());
+                dataOut.writeLong(senderUuid.getLeastSignificantBits());
+            }
+            var identifier = ProxPacketIdentifier.of(ProxLibPacketIds.VENDOR_ID, ProxLibPacketIds.PACKET_ID);
+            int packets = ProxLib.sendPacket(MinecraftClient.getInstance(), identifier, bytesOut.toByteArray());
+            if (KissModConfig.debugLogging) {
+                LOGGER.info("客户端发送ProxLib数据包，使用了 {} 个数据包", packets);
+            }
+        } catch (IOException e) {
+            LOGGER.error("客户端发送ProxLib数据包失败", e);
+        }
+    }
+    
+    private void registerProxLibHandler() {
+        var identifier = ProxPacketIdentifier.of(ProxLibPacketIds.VENDOR_ID, ProxLibPacketIds.PACKET_ID);
+        ProxLib.addHandlerFor(identifier, (sender, id, data) -> {
+            if (KissModConfig.debugLogging) {
+                LOGGER.info("接收到了ProxLib数据包 from {}", sender.getUuid());
+            }
+            if (!KissModConfig.showOthersKiss) return;
+            
+            try {
+                DataInputStream dataIn = new DataInputStream(new ByteArrayInputStream(data));
+                
+                long targetMostSigBits = dataIn.readLong();
+                long targetLeastSigBits = dataIn.readLong();
+                UUID targetUuid = new UUID(targetMostSigBits, targetLeastSigBits);
+                
+                long senderMostSigBits = dataIn.readLong();
+                long senderLeastSigBits = dataIn.readLong();
+                UUID senderUuid = new UUID(senderMostSigBits, senderLeastSigBits);
+                
+                MinecraftClient client = MinecraftClient.getInstance();
+                if (client.player != null && client.player.getUuid().equals(senderUuid)) return;
+                
+                ClientWorld world = client.world;
+                if (world == null) return;
+                
+                for (Entity entity : world.getEntities()) {
+                    if (entity.getUuid().equals(targetUuid)) {
+                        triggerEffect(entity, world);
+                        break;
+                    }
+                }
+            } catch (IOException e) {
+                LOGGER.error("处理ProxLib数据包失败", e);
+            }
+        });
     }
     //? if >=1.21.9{
     /*public static final KeyBinding.Category KISS_MOD_CATEGORY = KeyBinding.Category.create(
