@@ -51,6 +51,7 @@ public class KissModClient implements ClientModInitializer {
     private static long lastTriggerTime = 0;
     private static long lastRightClickTriggerTime = 0;
     private static boolean serverHasMod = false;
+    private static Thread handshakeThread;
     private static final Logger LOGGER = KissMod.LOGGER;
 
     @Override
@@ -75,6 +76,13 @@ public class KissModClient implements ClientModInitializer {
             serverHasMod = false;
             sendHandshakeWithRetry();
         });
+
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+            if (handshakeThread != null && handshakeThread.isAlive()) {
+                handshakeThread.interrupt();
+                handshakeThread = null;
+            }
+        });
     }
 
     private void sendHandshakeWithRetry() {
@@ -83,7 +91,7 @@ public class KissModClient implements ClientModInitializer {
         }
         ClientPlayNetworking.send(new HandshakeC2SPacket());
 
-        new Thread(() -> {
+        handshakeThread = new Thread(() -> {
             try {
                 Thread.sleep(1000);
                 if (!serverHasMod) {
@@ -106,7 +114,7 @@ public class KissModClient implements ClientModInitializer {
                 }
             } catch (InterruptedException ignored) {
             }
-        }).start();
+        });handshakeThread.start();
     }
     private void registerCommands() {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
