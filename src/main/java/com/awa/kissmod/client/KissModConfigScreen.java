@@ -42,28 +42,6 @@ public class KissModConfigScreen {
                 .setSaveConsumer(state -> KissModConfig.triggerCooldown = state)
                 .build());
 
-        general.addEntry(entryBuilder.startBooleanToggle(Text.translatable("option.kissmod.soundEnabled"), KissModConfig.soundEnabled)
-                .setDefaultValue(true)
-                .setTooltip(Text.translatable("tooltip.kissmod.soundEnabled"))
-                .setSaveConsumer(state -> KissModConfig.soundEnabled = state)
-                .build());
-
-        general.addEntry(entryBuilder.startDoubleField(Text.translatable("option.kissmod.soundVolume"), KissModConfig.soundVolume)
-                .setDefaultValue(1.0)
-                .setMin(0.0)
-                .setMax(1.0)
-                .setTooltip(Text.translatable("tooltip.kissmod.soundVolume"))
-                .setSaveConsumer(state -> KissModConfig.soundVolume = state)
-                .build());
-
-        general.addEntry(entryBuilder.startDoubleField(Text.translatable("option.kissmod.soundPitch"), KissModConfig.soundPitch)
-                .setDefaultValue(1.0)
-                .setMin(0.5)
-                .setMax(2.0)
-                .setTooltip(Text.translatable("tooltip.kissmod.soundPitch"))
-                .setSaveConsumer(state -> KissModConfig.soundPitch = state)
-                .build());
-
         general.addEntry(entryBuilder.startBooleanToggle(Text.translatable("option.kissmod.debugLogging"), KissModConfig.debugLogging)
                 .setDefaultValue(false)
                 .setTooltip(Text.translatable("tooltip.kissmod.debugLogging"))
@@ -74,6 +52,30 @@ public class KissModConfigScreen {
                 .setDefaultValue(false)
                 .setTooltip(Text.translatable("tooltip.kissmod.proxLibEnabled"))
                 .setSaveConsumer(state -> KissModConfig.proxLibEnabled = state)
+                .build());
+
+        ConfigCategory sound = builder.getOrCreateCategory(Text.translatable("category.kissmod.sound"));
+
+        sound.addEntry(entryBuilder.startBooleanToggle(Text.translatable("option.kissmod.soundEnabled"), KissModConfig.soundEnabled)
+                .setDefaultValue(true)
+                .setTooltip(Text.translatable("tooltip.kissmod.soundEnabled"))
+                .setSaveConsumer(state -> KissModConfig.soundEnabled = state)
+                .build());
+
+        sound.addEntry(entryBuilder.startDoubleField(Text.translatable("option.kissmod.soundVolume"), KissModConfig.soundVolume)
+                .setDefaultValue(1.0)
+                .setMin(0.0)
+                .setMax(1.0)
+                .setTooltip(Text.translatable("tooltip.kissmod.soundVolume"))
+                .setSaveConsumer(state -> KissModConfig.soundVolume = state)
+                .build());
+
+        sound.addEntry(entryBuilder.startDoubleField(Text.translatable("option.kissmod.soundPitch"), KissModConfig.soundPitch)
+                .setDefaultValue(1.0)
+                .setMin(0.5)
+                .setMax(2.0)
+                .setTooltip(Text.translatable("tooltip.kissmod.soundPitch"))
+                .setSaveConsumer(state -> KissModConfig.soundPitch = state)
                 .build());
 
         ConfigCategory particle = builder.getOrCreateCategory(Text.translatable("category.kissmod.particle"));
