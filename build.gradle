@@ -3,7 +3,7 @@ plugins {
 	id 'java'
 	id 'dev.kikugie.stonecutter'
 }
-version = project.mod_version
+version = "${project.mod_version}-${minecraft_version}"
 group = project.maven_group
 
 base {
