@@ -30,8 +30,8 @@
   "tooltip.kissmod.showOthersKiss": "是否要看别人的亲亲",
   "option.kissmod.triggerCooldown": "长按触发冷却 (毫秒)",
   "tooltip.kissmod.triggerCooldown": "长按触发亲亲之间的冷却时间，单位毫秒",
-  "option.kissmod.proxLibEnabled": "启用 ProxLib",
-  "tooltip.kissmod.proxLibEnabled": "无需服务端安装kiss mod就能让附近玩家看到你的亲亲",
+  "option.kissmod.proxLibEnabled": "邻近通信 (ProxLib)",
+  "tooltip.kissmod.proxLibEnabled": "无需服务端安装 Kiss Mod 就能让附近玩家看到你的亲亲\n§c警告：可能被反作弊认为异常而误判，有被踢出或封禁的风险§r\n原理为将数据编码进 ABORT_DESTROY_BLOCK 包而服务器会不经验证中继给附近玩家",
   "option.kissmod.centerOffsetX": "中心偏移 X",
   "tooltip.kissmod.centerOffsetX": "粒子生成位置的 X 轴固定偏移",
   "option.kissmod.centerOffsetY": "中心偏移 Y",
@@ -43,7 +43,5 @@
   "option.kissmod.maxOffsetY": "最大偏移 Y",
   "tooltip.kissmod.maxOffsetY": "粒子随机范围的 Y 轴最大偏移",
   "option.kissmod.maxOffsetZ": "最大偏移 Z",
-  "tooltip.kissmod.maxOffsetZ": "粒子随机范围的 Z 轴最大偏移",
-  "kiss-mod.toggle.enabled": "Sneak right-click trigger is enabled",
-  "kiss-mod.toggle.disabled": "Sneak right-click trigger is disabled"
+  "tooltip.kissmod.maxOffsetZ": "粒子随机范围的 Z 轴最大偏移"
 }
