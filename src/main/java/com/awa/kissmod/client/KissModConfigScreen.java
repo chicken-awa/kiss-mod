@@ -54,6 +54,18 @@ public class KissModConfigScreen {
                 .setSaveConsumer(state -> KissModConfig.proxLibEnabled = state)
                 .build());
 
+        general.addEntry(entryBuilder.startBooleanToggle(Text.translatable("option.kissmod.proxLibWhitelistMode"), KissModConfig.proxLibWhitelistMode)
+                .setDefaultValue(false)
+                .setTooltip(Text.translatable("tooltip.kissmod.proxLibWhitelistMode"))
+                .setSaveConsumer(state -> KissModConfig.proxLibWhitelistMode = state)
+                .build());
+
+        general.addEntry(entryBuilder.startStrList(Text.translatable("option.kissmod.proxLibServerList"), KissModConfig.proxLibServerList)
+                .setDefaultValue(new java.util.ArrayList<>())
+                .setTooltip(Text.translatable("tooltip.kissmod.proxLibServerList"))
+                .setSaveConsumer(state -> KissModConfig.proxLibServerList = state)
+                .build());
+
         ConfigCategory sound = builder.getOrCreateCategory(Text.translatable("category.kissmod.sound"));
 
         sound.addEntry(entryBuilder.startBooleanToggle(Text.translatable("option.kissmod.soundEnabled"), KissModConfig.soundEnabled)
