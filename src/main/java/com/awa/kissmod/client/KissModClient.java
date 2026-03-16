@@ -16,6 +16,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.world.ClientWorld;
@@ -76,8 +77,10 @@ public class KissModClient implements ClientModInitializer {
     private void registerConnectionEvents() {
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             serverHasMod = false;
-            var address = handler.getConnection().getAddress();
-            currentServerAddress = address.toString().split("/")[1];
+            ServerInfo serverInfo = MinecraftClient.getInstance().getCurrentServerEntry();
+            if (serverInfo != null) {
+                currentServerAddress = serverInfo.address;
+            }
 
             if (KissModConfig.debugLogging) {
                 LOGGER.info("服务器地址: {}", currentServerAddress);
@@ -296,11 +299,14 @@ public class KissModClient implements ClientModInitializer {
             if (!server.contains(":")) {
                 server = server + ":25565";
             }
-            if (server.equals(currentServer)) {
-                return whitelistMode;
+            if (!currentServer.contains(":")) {
+                currentServer = currentServer + ":25565";
             }
             if (KissModConfig.debugLogging) {
                 LOGGER.info("选到了{}",server);
+            }
+            if (server.equals(currentServer)) {
+                return whitelistMode;
             }
         }
 
