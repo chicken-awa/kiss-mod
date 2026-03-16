@@ -8,6 +8,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 public class KissModConfig {
@@ -24,6 +27,8 @@ public class KissModConfig {
     public static boolean showOthersKiss = true;
     public static int triggerCooldown = 175;
     public static boolean proxLibEnabled = false;
+    public static boolean proxLibWhitelistMode = false;
+    public static List<String> proxLibServerList = new ArrayList<>();
 
     public static double centerOffsetX = 0.0;
     public static double centerOffsetY = 0.0;
@@ -49,6 +54,9 @@ public class KissModConfig {
             showOthersKiss = Boolean.parseBoolean(prop.getProperty("showOthersKiss", "true"));
             triggerCooldown = Integer.parseInt(prop.getProperty("triggerCooldown", "175"));
             proxLibEnabled = Boolean.parseBoolean(prop.getProperty("proxLibEnabled", "false"));
+            proxLibWhitelistMode = Boolean.parseBoolean(prop.getProperty("proxLibWhitelistMode", "false"));
+            String serverListStr = prop.getProperty("proxLibServerList", "");
+            proxLibServerList = serverListStr.isEmpty() ? new ArrayList<>() : new ArrayList<>(Arrays.asList(serverListStr.split(",")));
             particleCount = Integer.parseInt(prop.getProperty("particleCount", "10"));
             centerOffsetX = Double.parseDouble(prop.getProperty("centerOffsetX", "0.0"));
             centerOffsetY = Double.parseDouble(prop.getProperty("centerOffsetY", "0.0"));
@@ -82,6 +90,8 @@ public class KissModConfig {
         prop.setProperty("showOthersKiss",    String.valueOf(showOthersKiss));
         prop.setProperty("triggerCooldown",   String.valueOf(triggerCooldown));
         prop.setProperty("proxLibEnabled",    String.valueOf(proxLibEnabled));
+        prop.setProperty("proxLibWhitelistMode", String.valueOf(proxLibWhitelistMode));
+        prop.setProperty("proxLibServerList", String.join(",", proxLibServerList));
         prop.setProperty("centerOffsetX",     String.valueOf(centerOffsetX));
         prop.setProperty("centerOffsetY",     String.valueOf(centerOffsetY));
         prop.setProperty("centerOffsetZ",     String.valueOf(centerOffsetZ));

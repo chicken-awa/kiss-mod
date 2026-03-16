@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
@@ -52,6 +53,7 @@ public class KissModClient implements ClientModInitializer {
     private static long lastRightClickTriggerTime = 0;
     private static boolean serverHasMod = false;
     private static Thread handshakeThread;
+    private static String currentServerAddress;
     private static final Logger LOGGER = KissMod.LOGGER;
 
     @Override
@@ -74,6 +76,12 @@ public class KissModClient implements ClientModInitializer {
     private void registerConnectionEvents() {
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             serverHasMod = false;
+            var address = handler.getConnection().getAddress();
+            currentServerAddress = address.toString().split("/")[1];
+
+            if (KissModConfig.debugLogging) {
+                LOGGER.info("服务器ip: {}", currentServerAddress);
+            }
             sendHandshakeWithRetry();
         });
 
@@ -246,6 +254,14 @@ public class KissModClient implements ClientModInitializer {
     private void sendProxLibPacket(Entity target) {
         if (!KissModConfig.proxLibEnabled) return;
         if (!KissModConfig.showOwnKiss) return;
+        
+        if (!checkServerInList(currentServerAddress, KissModConfig.proxLibServerList, KissModConfig.proxLibWhitelistMode)) {
+            if (KissModConfig.debugLogging) {
+                LOGGER.info("服务器ip不满足黑/白名单");
+            }
+            return;
+        }
+        
         UUID senderUuid = null;
         if (MinecraftClient.getInstance().player != null) {
             senderUuid = MinecraftClient.getInstance().player.getUuid();
@@ -269,6 +285,26 @@ public class KissModClient implements ClientModInitializer {
         } catch (IOException e) {
             LOGGER.error("客户端发送ProxLib数据包失败", e);
         }
+    }
+    
+    private boolean checkServerInList(String currentServer, List<String> serverList, boolean whitelistMode) {
+        if (currentServer == null || serverList == null || serverList.isEmpty()) {
+            return !whitelistMode;
+        }
+
+        for (String server : serverList) {
+            if (!server.contains(":")) {
+                server = server + ":25565";
+            }
+            if (server.equals(currentServer)) {
+                return whitelistMode;
+            }
+            if (KissModConfig.debugLogging) {
+                LOGGER.info("选到了{}",server);
+            }
+        }
+
+        return !whitelistMode;
     }
     
     private void registerProxLibHandler() {
