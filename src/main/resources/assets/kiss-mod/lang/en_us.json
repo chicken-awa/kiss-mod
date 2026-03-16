@@ -35,7 +35,7 @@
   "option.kissmod.proxLibWhitelistMode": "Whitelist Mode",
   "tooltip.kissmod.proxLibWhitelistMode": "OFF: Blacklist - ProxLib disabled on listed servers\nON: Whitelist - ProxLib only enabled on listed servers",
   "option.kissmod.proxLibServerList": "Server List",
-  "tooltip.kissmod.proxLibServerList": "Server IPs, one per line e.g. hypixel.net, 127.0.0.1:23456",
+  "tooltip.kissmod.proxLibServerList": "Server address list, one per line e.g. hypixel.net, 127.0.0.1:23456",
   "option.kissmod.centerOffsetX": "Center Offset X",
   "tooltip.kissmod.centerOffsetX": "Fixed X-axis offset for particle spawn position",
   "option.kissmod.centerOffsetY": "Center Offset Y",

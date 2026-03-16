@@ -80,7 +80,7 @@ public class KissModClient implements ClientModInitializer {
             currentServerAddress = address.toString().split("/")[1];
 
             if (KissModConfig.debugLogging) {
-                LOGGER.info("服务器ip: {}", currentServerAddress);
+                LOGGER.info("服务器地址: {}", currentServerAddress);
             }
             sendHandshakeWithRetry();
         });
@@ -257,7 +257,7 @@ public class KissModClient implements ClientModInitializer {
         
         if (!checkServerInList(currentServerAddress, KissModConfig.proxLibServerList, KissModConfig.proxLibWhitelistMode)) {
             if (KissModConfig.debugLogging) {
-                LOGGER.info("服务器ip不满足黑/白名单");
+                LOGGER.info("服务器地址不满足黑/白名单");
             }
             return;
         }
