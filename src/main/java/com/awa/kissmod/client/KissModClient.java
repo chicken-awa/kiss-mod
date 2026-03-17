@@ -2,49 +2,24 @@ package com.awa.kissmod.client;
 
 import com.awa.kissmod.KissMod;
 import com.awa.kissmod.KissModConfig;
-import com.awa.kissmod.packet.HandshakeC2SPacket;
-import com.awa.kissmod.packet.HandshakeS2CPacket;
-import com.awa.kissmod.packet.KissC2SPacket;
-import com.awa.kissmod.packet.KissS2CPacket;
-import com.awa.kissmod.proxlib.ProxLibPacketIds;
-import me.enderkill98.proxlib.ProxPacketIdentifier;
-import me.enderkill98.proxlib.client.ProxLib;
 import net.fabricmc.api.*;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.text.Text;
 import net.minecraft.util.*;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import com.mojang.brigadier.arguments.BoolArgumentType;
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.*;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 
-import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
-
 public class KissModClient implements ClientModInitializer {
 
     private static KeyBinding kissKey;
@@ -52,9 +27,6 @@ public class KissModClient implements ClientModInitializer {
     private static boolean wasRightClickPressed = false;
     private static long lastTriggerTime = 0;
     private static long lastRightClickTriggerTime = 0;
-    private static boolean serverHasMod = false;
-    private static Thread handshakeThread;
-    private static String currentServerAddress;
     private static final Logger LOGGER = KissMod.LOGGER;
 
     @Override
@@ -64,113 +36,16 @@ public class KissModClient implements ClientModInitializer {
         } else {
             KissMod.LOGGER.info("Cloth Config not detected");
         }
-        registerConnectionEvents();
-        registerRightClickEvent();
+
         registerKeyBinding();
-        registerClientNetworkReceiver();
-        registerProxLibHandler();
-        registerCommands();
+
+        registerRightClickEvent();
+        registerKeyTriggerEvent();
+
+        KissModNetworkHandler.registerHandlers();
+        KissModCommandRegistration.registerCommands();
         KissModConfig.loadConfig();
         System.out.println("KissModClient initialized!");
-    }
-//加入服务器发握手包
-    private void registerConnectionEvents() {
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-            serverHasMod = false;
-            ServerInfo serverInfo = MinecraftClient.getInstance().getCurrentServerEntry();
-            if (serverInfo != null) {
-                currentServerAddress = serverInfo.address;
-            }
-
-            if (KissModConfig.debugLogging) {
-                LOGGER.info("服务器地址: {}", currentServerAddress);
-            }
-            sendHandshakeWithRetry();
-        });
-
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            if (handshakeThread != null && handshakeThread.isAlive()) {
-                handshakeThread.interrupt();
-                handshakeThread = null;
-            }
-        });
-    }
-
-    private void sendHandshakeWithRetry() {
-        if (KissModConfig.debugLogging) {
-            LOGGER.info("发送握手包");
-        }
-        ClientPlayNetworking.send(new HandshakeC2SPacket());
-
-        handshakeThread = new Thread(() -> {
-            try {
-                Thread.sleep(1000);
-                if (!serverHasMod) {
-                    if (KissModConfig.debugLogging) {
-                        LOGGER.info("握手包重发(1/2)");
-                    }
-                    MinecraftClient.getInstance().execute(() -> ClientPlayNetworking.send(new HandshakeC2SPacket()));
-                }
-            } catch (InterruptedException e) {
-                return;
-            }
-
-            try {
-                Thread.sleep(5000);
-                if (!serverHasMod) {
-                    if (KissModConfig.debugLogging) {
-                        LOGGER.info("握手包重发(2/2)");
-                    }
-                    MinecraftClient.getInstance().execute(() -> ClientPlayNetworking.send(new HandshakeC2SPacket()));
-                }
-            } catch (InterruptedException ignored) {
-            }
-        });handshakeThread.start();
-    }
-    private void registerCommands() {
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
-                dispatcher.register(literal("kissmod-rightclick")
-                        .executes(context -> {
-                            KissModConfig.rightClickEnabled = !KissModConfig.rightClickEnabled;
-                            KissModConfig.saveConfig();
-                            String translationKey = KissModConfig.rightClickEnabled ? "kiss-mod.rightclick.enabled" : "kiss-mod.rightclick.disabled";
-                            context.getSource().sendFeedback(Text.translatable(translationKey));
-                            return 1;
-                        })
-                        .then(argument("state", BoolArgumentType.bool())
-                                .executes(context -> {
-                                    boolean state = BoolArgumentType.getBool(context, "state");
-                                    KissModConfig.rightClickEnabled = state;
-                                    KissModConfig.saveConfig();
-                                    String translationKey = state ? "kiss-mod.rightclick.enabled" : "kiss-mod.rightclick.disabled";
-                                    context.getSource().sendFeedback(Text.translatable(translationKey));
-                                    return 1;
-                                })
-                        )
-                )
-        );
-
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
-                dispatcher.register(literal("kissmod-proxlib")
-                        .executes(context -> {
-                            KissModConfig.proxLibEnabled = !KissModConfig.proxLibEnabled;
-                            KissModConfig.saveConfig();
-                            String translationKey = KissModConfig.proxLibEnabled ? "kiss-mod.proxlib.enabled" : "kiss-mod.proxlib.disabled";
-                            context.getSource().sendFeedback(Text.translatable(translationKey));
-                            return 1;
-                        })
-                        .then(argument("state", BoolArgumentType.bool())
-                                .executes(context -> {
-                                    boolean state = BoolArgumentType.getBool(context, "state");
-                                    KissModConfig.proxLibEnabled = state;
-                                    KissModConfig.saveConfig();
-                                    String translationKey = state ? "kiss-mod.proxlib.enabled" : "kiss-mod.proxlib.disabled";
-                                    context.getSource().sendFeedback(Text.translatable(translationKey));
-                                    return 1;
-                                })
-                        )
-                )
-        );
     }
     private void registerRightClickEvent() {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
@@ -190,8 +65,8 @@ public class KissModClient implements ClientModInitializer {
                         if (KissModConfig.debugLogging) {
                             LOGGER.info("客户端将发送数据包 右键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
                         }
-                        sendKissPacket(target);
-                        triggerEffect(target, client.world);
+                        KissModNetworkHandler.sendKissPacket(target);
+                        KissModEffectHandler.triggerEffect(target, client.world);
                         client.player.swingHand(Hand.MAIN_HAND);
                         lastRightClickTriggerTime = currentTime;
                     }
@@ -231,122 +106,30 @@ public class KissModClient implements ClientModInitializer {
                 }
             }
         }
-
         return closestEntity;
     }
+    private void registerKeyTriggerEvent() {
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            boolean isKeyPressed = kissKey.isPressed();
+            long currentTime = System.currentTimeMillis();
 
-    private void sendKissPacket(Entity target) {
-        if (!serverHasMod) {
-            if (KissModConfig.proxLibEnabled) {
-                sendProxLibPacket(target);
-            }
-            return;
-        }
-        UUID senderUuid = null;
-        if (MinecraftClient.getInstance().player != null) {
-            senderUuid = MinecraftClient.getInstance().player.getUuid();
-        }
-        if (KissModConfig.showOwnKiss) {
-            if (KissModConfig.debugLogging) {
-                LOGGER.info("客户端发送数据包{}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
-            }
-            ClientPlayNetworking.send(new KissC2SPacket(target.getUuid(), senderUuid));
-        }
-    }
-    
-    private void sendProxLibPacket(Entity target) {
-        if (!KissModConfig.proxLibEnabled) return;
-        if (!KissModConfig.showOwnKiss) return;
-        
-        if (!checkServerInList(currentServerAddress, KissModConfig.proxLibServerList, KissModConfig.proxLibWhitelistMode)) {
-            if (KissModConfig.debugLogging) {
-                LOGGER.info("服务器地址不满足黑/白名单");
-            }
-            return;
-        }
-        
-        UUID senderUuid = null;
-        if (MinecraftClient.getInstance().player != null) {
-            senderUuid = MinecraftClient.getInstance().player.getUuid();
-        }
-        
-        try {
-            ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-            DataOutputStream dataOut = new DataOutputStream(bytesOut);
-            
-            dataOut.writeLong(target.getUuid().getMostSignificantBits());
-            dataOut.writeLong(target.getUuid().getLeastSignificantBits());
-            if (senderUuid != null) {
-                dataOut.writeLong(senderUuid.getMostSignificantBits());
-                dataOut.writeLong(senderUuid.getLeastSignificantBits());
-            }
-            var identifier = ProxPacketIdentifier.of(ProxLibPacketIds.VENDOR_ID, ProxLibPacketIds.PACKET_ID);
-            int packets = ProxLib.sendPacket(MinecraftClient.getInstance(), identifier, bytesOut.toByteArray());
-            if (KissModConfig.debugLogging) {
-                LOGGER.info("客户端发送ProxLib数据包，使用了 {} 个数据包", packets);
-            }
-        } catch (IOException e) {
-            LOGGER.error("客户端发送ProxLib数据包失败", e);
-        }
-    }
-    
-    private boolean checkServerInList(String currentServer, List<String> serverList, boolean whitelistMode) {
-        if (currentServer == null || serverList == null || serverList.isEmpty()) {
-            return !whitelistMode;
-        }
-
-        for (String server : serverList) {
-            if (!server.contains(":")) {
-                server = server + ":25565";
-            }
-            if (!currentServer.contains(":")) {
-                currentServer = currentServer + ":25565";
-            }
-            if (KissModConfig.debugLogging) {
-                LOGGER.info("选到了{}",server);
-            }
-            if (server.equals(currentServer)) {
-                return whitelistMode;
-            }
-        }
-
-        return !whitelistMode;
-    }
-    
-    private void registerProxLibHandler() {
-        var identifier = ProxPacketIdentifier.of(ProxLibPacketIds.VENDOR_ID, ProxLibPacketIds.PACKET_ID);
-        ProxLib.addHandlerFor(identifier, (sender, id, data) -> {
-            if (KissModConfig.debugLogging) {
-                LOGGER.info("接收到了ProxLib数据包 from {}", sender.getUuid());
-            }
-            if (!KissModConfig.showOthersKiss) return;
-            
-            try {
-                DataInputStream dataIn = new DataInputStream(new ByteArrayInputStream(data));
-                
-                long targetMostSigBits = dataIn.readLong();
-                long targetLeastSigBits = dataIn.readLong();
-                UUID targetUuid = new UUID(targetMostSigBits, targetLeastSigBits);
-                
-                long senderMostSigBits = dataIn.readLong();
-                long senderLeastSigBits = dataIn.readLong();
-                UUID senderUuid = new UUID(senderMostSigBits, senderLeastSigBits);
-                
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(senderUuid)) return;
-                
-                ClientWorld world = client.world;
-                if (world == null) return;
-                
-                for (Entity entity : world.getEntities()) {
-                    if (entity.getUuid().equals(targetUuid)) {
-                        triggerEffect(entity, world);
-                        break;
+            if (isKeyPressed && (!wasKeyPressed || (currentTime - lastTriggerTime >= KissModConfig.triggerCooldown))) {
+                Entity target = getEntityFromCameraRaycast(client);
+                if (target != null) {
+                    if (KissModConfig.debugLogging) {
+                        LOGGER.info("客户端将发送数据包 按键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+                    }
+                    KissModNetworkHandler.sendKissPacket(target);
+                    if (client.world != null) {
+                        KissModEffectHandler.triggerEffect(target, client.world);
+                    }
+                    if (client.player != null) {
+                        client.player.swingHand(Hand.MAIN_HAND);
                     }
                 }
-            } catch (IOException e) {
-                LOGGER.error("处理ProxLib数据包失败", e);
+                lastTriggerTime = currentTime;
             }
+            wasKeyPressed = isKeyPressed;
         });
     }
     //? if >=1.21.9{
@@ -361,111 +144,9 @@ public class KissModClient implements ClientModInitializer {
                 GLFW.GLFW_KEY_F7,
                 //? if >=1.21.9{
                 /*KISS_MOD_CATEGORY
-                *///?} else{
+                 *///?} else{
                 "key.category.kiss-mod.keybindings"
                 //?}
         ));
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            boolean isKeyPressed = kissKey.isPressed();
-            long currentTime = System.currentTimeMillis();
-
-            if (isKeyPressed && (!wasKeyPressed || (currentTime - lastTriggerTime >= KissModConfig.triggerCooldown))) {
-                Entity target = getEntityFromCameraRaycast(client);
-                if (target != null) {
-                    if (KissModConfig.debugLogging) {
-                        LOGGER.info("客户端将发送数据包 按键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
-                    }
-                    sendKissPacket(target);
-                    if (client.world != null) {
-                        triggerEffect(target, client.world);
-                    }
-                    if (client.player != null) {
-                        client.player.swingHand(Hand.MAIN_HAND);
-                    }
-                }
-                lastTriggerTime = currentTime;
-            }
-            wasKeyPressed = isKeyPressed;
-        });
-    }
-    private void registerClientNetworkReceiver() {
-        ClientPlayNetworking.registerGlobalReceiver(KissS2CPacket.TYPE, (payload, context) -> {
-            if (KissModConfig.debugLogging) {
-                LOGGER.info("接收到了来自服务器的数据包 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
-            }
-            MinecraftClient client = MinecraftClient.getInstance();
-            ClientWorld world = client.world;
-
-            if (world == null || client.player == null) return;
-            if (!KissModConfig.showOthersKiss) return;
-            if (client.player.getUuid().equals(payload.getWhoPattedUuid())) return;
-            UUID targetUuid = payload.getPattedEntityUuid();
-            for (Entity entity : world.getEntities()) {
-                if (entity.getUuid().equals(targetUuid)) {
-                    triggerEffect(entity, world);
-                    break;
-                }
-            }
-        });
-
-        ClientPlayNetworking.registerGlobalReceiver(HandshakeS2CPacket.TYPE, (payload, context) -> {
-            serverHasMod = true;
-            LOGGER.info("服务器安装了kiss-mod");
-        });
-    }
-
-    public static void triggerEffect(Entity target, World world) {
-        if (world.isClient()) {
-            spawnHeartParticles(world, target);
-            if (KissModConfig.debugLogging) {
-                LOGGER.info("生成粒子 at {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
-            }
-            if (KissModConfig.soundEnabled) {
-                if (KissModConfig.debugLogging) {
-                    LOGGER.info("播放声音 at {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
-                }
-                SoundEvent[] soundEvents = {
-                        KissMod.CUSTOM_SOUND_EVENT,
-                        KissMod.CUSTOM_SOUND1_EVENT,
-                        KissMod.CUSTOM_SOUND2_EVENT};
-                SoundEvent randomSound = soundEvents[new Random().nextInt(soundEvents.length)];
-
-                world.playSound(
-                        MinecraftClient.getInstance().player,
-                        target.getX(), target.getY(), target.getZ(),
-                        randomSound,
-                        SoundCategory.PLAYERS,
-                        (float) KissModConfig.soundVolume,
-                        (float) KissModConfig.soundPitch
-                );
-            }
-        }
-    }
-
-    public static void spawnHeartParticles(World world, Entity entity) {
-        double x = entity.getX() + KissModConfig.centerOffsetX;
-        double y = entity.getY() + entity.getHeight() + KissModConfig.centerOffsetY;
-        double z = entity.getZ() + KissModConfig.centerOffsetZ;
-
-        for (int i = 0; i < KissModConfig.particleCount; i++) {
-            double offsetX = world.random.nextDouble() * (KissModConfig.maxOffsetX * 2) - KissModConfig.maxOffsetX;
-            double offsetY = world.random.nextDouble() * (KissModConfig.maxOffsetY * 2) - KissModConfig.maxOffsetY;
-            double offsetZ = world.random.nextDouble() * (KissModConfig.maxOffsetZ * 2) - KissModConfig.maxOffsetZ;
-            //? if >=1.21.5 {
-            /*world.addParticleClient(
-                    ParticleTypes.HEART,
-                    true,
-                    false,
-                    x + offsetX, y + offsetY, z + offsetZ,
-                    0.0, 0.0, 0.0
-            );
-            *///? } else {
-            world.addImportantParticle(
-                    ParticleTypes.HEART,
-                    true,
-                    x + offsetX, y + offsetY, z + offsetZ,
-                    0.0, 0.0, 0.0
-            );//? }
-        }
     }
 }
