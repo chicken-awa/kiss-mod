@@ -27,7 +27,8 @@ When [Mod Menu](https://modrinth.com/mod/modmenu) and [Cloth Config API](https:/
 - Cooldown between triggers when holding down;
 - Whether to enable detailed logging;
 - Whether to enable proximity communication **(when enabled, nearby players can see your kisses without requiring the mod or plugin to be installed on the server);**
-  > **Warning: May be mistaken for anomalies by anti-cheat systems, risk of being kicked or banned, the author is not responsible for this.**
+  > **Warning: May be mistaken for anomalies by anti-cheat systems, risk of being kicked or banned, the author is not responsible for this.**  
+Tested in Hypixel BedWars: If triggered too frequently, you will be teleported to the AFK lobby with the message: "You've been sent to limbo due to bad internet connectivity."
 - Whether the list is a whitelist;
 - List of server addresses for proximity communication.
 ### Sound Settings
