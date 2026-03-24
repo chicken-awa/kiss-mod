@@ -2,6 +2,7 @@ plugins {
 	id 'fabric-loom' version '1.14-SNAPSHOT'
 	id 'java'
 	id 'dev.kikugie.stonecutter'
+	id "com.modrinth.minotaur" version "2.9.0"
 }
 version = "${project.mod_version}-${minecraft_version}"
 group = project.maven_group
@@ -55,4 +56,20 @@ jar {
 	from("LICENSE") {
 		rename { "${it}_${project.base.archivesName.get()}"}
 	}
+}
+modrinth {
+	token = System.getenv("MODRINTH_TOKEN")
+	projectId = "kiss-mod"
+	uploadFile = remapJar
+	versionName = "Kiss Mod ${version}"
+	changelog = ""
+	dependencies {
+		required.project "fabric-api"
+		optional.project "modmenu"
+		optional.project "cloth-config"
+	}
+	debugMode = true
+}
+tasks.named("modrinth") {
+	outputs.upToDateWhen { false }
 }
