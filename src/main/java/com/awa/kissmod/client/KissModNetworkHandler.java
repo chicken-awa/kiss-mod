@@ -11,11 +11,10 @@ import me.enderkill98.proxlib.ProxPacketIdentifier;
 import me.enderkill98.proxlib.client.ProxLib;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ServerInfo;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.world.entity.Entity;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -41,9 +40,9 @@ public class KissModNetworkHandler {
     private static void registerConnectionEvents() {
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
             serverHasMod = false;
-            ServerInfo serverInfo = MinecraftClient.getInstance().getCurrentServerEntry();
+            ServerData serverInfo = Minecraft.getInstance().getCurrentServer();
             if (serverInfo != null) {
-                currentServerAddress = serverInfo.address;
+                currentServerAddress = serverInfo.ip;
             }
 
             if (KissModConfig.debugLogging) {
@@ -73,7 +72,7 @@ public class KissModNetworkHandler {
                     if (KissModConfig.debugLogging) {
                         LOGGER.info("握手包重发(1/2)");
                     }
-                    MinecraftClient.getInstance().execute(() -> ClientPlayNetworking.send(new HandshakeC2SPacket()));
+                    Minecraft.getInstance().execute(() -> ClientPlayNetworking.send(new HandshakeC2SPacket()));
                 }
             } catch (InterruptedException e) {
                 return;
@@ -85,7 +84,7 @@ public class KissModNetworkHandler {
                     if (KissModConfig.debugLogging) {
                         LOGGER.info("握手包重发(2/2)");
                     }
-                    MinecraftClient.getInstance().execute(() -> ClientPlayNetworking.send(new HandshakeC2SPacket()));
+                    Minecraft.getInstance().execute(() -> ClientPlayNetworking.send(new HandshakeC2SPacket()));
                 }
             } catch (InterruptedException ignored) {
             }
@@ -97,15 +96,15 @@ public class KissModNetworkHandler {
             if (KissModConfig.debugLogging) {
                 LOGGER.info("接收到了来自服务器的数据包 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
             }
-            MinecraftClient client = MinecraftClient.getInstance();
-            ClientWorld world = client.world;
+            Minecraft client = Minecraft.getInstance();
+            ClientLevel world = client.level;
 
             if (world == null || client.player == null) return;
             if (!KissModConfig.showOthersKiss) return;
-            if (client.player.getUuid().equals(payload.getWhoPattedUuid())) return;
+            if (client.player.getUUID().equals(payload.getWhoPattedUuid())) return;
             UUID targetUuid = payload.getPattedEntityUuid();
-            for (Entity entity : world.getEntities()) {
-                if (entity.getUuid().equals(targetUuid)) {
+            for (Entity entity : world.entitiesForRendering()) {
+                if (entity.getUUID().equals(targetUuid)) {
                     KissModEffectHandler.triggerEffect(entity, world);
                     break;
                 }
@@ -126,14 +125,14 @@ public class KissModNetworkHandler {
             return;
         }
         UUID senderUuid = null;
-        if (MinecraftClient.getInstance().player != null) {
-            senderUuid = MinecraftClient.getInstance().player.getUuid();
+        if (Minecraft.getInstance().player != null) {
+            senderUuid = Minecraft.getInstance().player.getUUID();
         }
         if (KissModConfig.showOwnKiss) {
             if (KissModConfig.debugLogging) {
                 LOGGER.info("客户端发送数据包{}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
             }
-            ClientPlayNetworking.send(new KissC2SPacket(target.getUuid(), senderUuid));
+            ClientPlayNetworking.send(new KissC2SPacket(target.getUUID(), senderUuid));
         }
     }
 
@@ -150,22 +149,22 @@ public class KissModNetworkHandler {
         }
 
         UUID senderUuid = null;
-        if (MinecraftClient.getInstance().player != null) {
-            senderUuid = MinecraftClient.getInstance().player.getUuid();
+        if (Minecraft.getInstance().player != null) {
+            senderUuid = Minecraft.getInstance().player.getUUID();
         }
 
         try {
             ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
             DataOutputStream dataOut = new DataOutputStream(bytesOut);
 
-            dataOut.writeLong(target.getUuid().getMostSignificantBits());
-            dataOut.writeLong(target.getUuid().getLeastSignificantBits());
+            dataOut.writeLong(target.getUUID().getMostSignificantBits());
+            dataOut.writeLong(target.getUUID().getLeastSignificantBits());
             if (senderUuid != null) {
                 dataOut.writeLong(senderUuid.getMostSignificantBits());
                 dataOut.writeLong(senderUuid.getLeastSignificantBits());
             }
             var identifier = ProxPacketIdentifier.of(ProxLibPacketIds.VENDOR_ID, ProxLibPacketIds.PACKET_ID);
-            int packets = ProxLib.sendPacket(MinecraftClient.getInstance(), identifier, bytesOut.toByteArray());
+            int packets = ProxLib.sendPacket(Minecraft.getInstance(), identifier, bytesOut.toByteArray());
             if (KissModConfig.debugLogging) {
                 LOGGER.info("客户端发送ProxLib数据包，使用了 {} 个数据包", packets);
             }
@@ -202,7 +201,7 @@ public class KissModNetworkHandler {
         var identifier = ProxPacketIdentifier.of(ProxLibPacketIds.VENDOR_ID, ProxLibPacketIds.PACKET_ID);
         ProxLib.addHandlerFor(identifier, (sender, id, data) -> {
             if (KissModConfig.debugLogging) {
-                LOGGER.info("接收到了ProxLib数据包 from {}", sender.getUuid());
+                LOGGER.info("接收到了ProxLib数据包 from {}", sender.getUUID());
             }
             if (!KissModConfig.showOthersKiss) return;
 
@@ -217,14 +216,14 @@ public class KissModNetworkHandler {
                 long senderLeastSigBits = dataIn.readLong();
                 UUID senderUuid = new UUID(senderMostSigBits, senderLeastSigBits);
 
-                MinecraftClient client = MinecraftClient.getInstance();
-                if (client.player != null && client.player.getUuid().equals(senderUuid)) return;
+                Minecraft client = Minecraft.getInstance();
+                if (client.player != null && client.player.getUUID().equals(senderUuid)) return;
 
-                ClientWorld world = client.world;
+                ClientLevel world = client.level;
                 if (world == null) return;
 
-                for (Entity entity : world.getEntities()) {
-                    if (entity.getUuid().equals(targetUuid)) {
+                for (Entity entity : world.entitiesForRendering()) {
+                    if (entity.getUUID().equals(targetUuid)) {
                         KissModEffectHandler.triggerEffect(entity, world);
                         break;
                     }
