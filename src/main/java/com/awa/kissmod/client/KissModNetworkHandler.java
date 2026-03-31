@@ -38,7 +38,7 @@ public class KissModNetworkHandler {
 
     //加入服务器发握手包
     private static void registerConnectionEvents() {
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+        ClientPlayConnectionEvents.JOIN.register((_, _, _) -> {
             serverHasMod = false;
             ServerData serverInfo = Minecraft.getInstance().getCurrentServer();
             if (serverInfo != null) {
@@ -51,7 +51,7 @@ public class KissModNetworkHandler {
             sendHandshakeWithRetry();
         });
 
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+        ClientPlayConnectionEvents.DISCONNECT.register((_, _) -> {
             if (handshakeThread != null && handshakeThread.isAlive()) {
                 handshakeThread.interrupt();
                 handshakeThread = null;
@@ -92,7 +92,7 @@ public class KissModNetworkHandler {
     }
 
     private static void registerClientNetworkReceiver() {
-        ClientPlayNetworking.registerGlobalReceiver(KissS2CPacket.TYPE, (payload, context) -> {
+        ClientPlayNetworking.registerGlobalReceiver(KissS2CPacket.TYPE, (payload, _) -> {
             if (KissModConfig.debugLogging) {
                 LOGGER.info("接收到了来自服务器的数据包 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
             }
@@ -111,7 +111,7 @@ public class KissModNetworkHandler {
             }
         });
 
-        ClientPlayNetworking.registerGlobalReceiver(HandshakeS2CPacket.TYPE, (payload, context) -> {
+        ClientPlayNetworking.registerGlobalReceiver(HandshakeS2CPacket.TYPE, (_, _) -> {
             serverHasMod = true;
             LOGGER.info("服务器安装了kiss-mod");
         });
@@ -199,7 +199,7 @@ public class KissModNetworkHandler {
 
     private static void registerProxLibHandler() {
         var identifier = ProxPacketIdentifier.of(ProxLibPacketIds.VENDOR_ID, ProxLibPacketIds.PACKET_ID);
-        ProxLib.addHandlerFor(identifier, (sender, id, data) -> {
+        ProxLib.addHandlerFor(identifier, (sender, _, data) -> {
             if (KissModConfig.debugLogging) {
                 LOGGER.info("接收到了ProxLib数据包 from {}", sender.getUUID());
             }

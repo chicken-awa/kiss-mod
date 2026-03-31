@@ -4,6 +4,7 @@ import java.util.UUID;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.NonNull;
 
 public class KissC2SPacket implements CustomPacketPayload {
     public static final Identifier PACKET_ID = Identifier.fromNamespaceAndPath("kiss-mod", "kiss_entity_c2s_packet");
@@ -24,7 +25,7 @@ public class KissC2SPacket implements CustomPacketPayload {
     }
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public @NonNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 

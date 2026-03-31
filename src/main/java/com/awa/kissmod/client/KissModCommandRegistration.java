@@ -5,12 +5,12 @@ import com.mojang.brigadier.arguments.BoolArgumentType;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.network.chat.Component;
 
-import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.*;
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.*;
 
 public class KissModCommandRegistration {
 
     public static void registerCommands() {
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, _) ->
                 dispatcher.register(literal("kissmod-rightclick")
                         .executes(context -> {
                             KissModConfig.rightClickEnabled = !KissModConfig.rightClickEnabled;
@@ -32,7 +32,7 @@ public class KissModCommandRegistration {
                 )
         );
 
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, _) ->
                 dispatcher.register(literal("kissmod-proxlib")
                         .executes(context -> {
                             KissModConfig.proxLibEnabled = !KissModConfig.proxLibEnabled;

@@ -3,6 +3,7 @@ package com.awa.kissmod.packet;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
+import org.jspecify.annotations.NonNull;
 
 public class HandshakeS2CPacket implements CustomPacketPayload {
     public static final Identifier PACKET_ID = Identifier.fromNamespaceAndPath("kiss-mod", "handshake_s2c");
@@ -15,7 +16,7 @@ public class HandshakeS2CPacket implements CustomPacketPayload {
     public HandshakeS2CPacket(RegistryFriendlyByteBuf buf) {}
 
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public @NonNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 

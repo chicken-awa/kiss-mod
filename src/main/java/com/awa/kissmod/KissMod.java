@@ -15,7 +15,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.*;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,10 +50,10 @@ public class KissMod implements ModInitializer {
 			SoundEvent.createVariableRangeEvent(CUSTOM_SOUND2_ID)
 	);
 	static {
-			PayloadTypeRegistry.playS2C().register(KissS2CPacket.TYPE, KissS2CPacket.CODEC);
-			PayloadTypeRegistry.playC2S().register(KissC2SPacket.TYPE, KissC2SPacket.CODEC);
-			PayloadTypeRegistry.playS2C().register(HandshakeS2CPacket.TYPE, HandshakeS2CPacket.CODEC);
-			PayloadTypeRegistry.playC2S().register(HandshakeC2SPacket.TYPE, HandshakeC2SPacket.CODEC);
+			PayloadTypeRegistry.clientboundPlay().register(KissS2CPacket.TYPE, KissS2CPacket.CODEC);
+			PayloadTypeRegistry.serverboundPlay().register(KissC2SPacket.TYPE, KissC2SPacket.CODEC);
+			PayloadTypeRegistry.clientboundPlay().register(HandshakeS2CPacket.TYPE, HandshakeS2CPacket.CODEC);
+			PayloadTypeRegistry.serverboundPlay().register(HandshakeC2SPacket.TYPE, HandshakeC2SPacket.CODEC);
 		}
 	@Override
 	public void onInitialize() {
@@ -66,12 +65,12 @@ public class KissMod implements ModInitializer {
 			ServerPlayer player = context.player();
 			UUID targetUuid = payload.getKissedEntityUuid();
 			UUID senderUuid = payload.getSenderUuid();
-			World world = player.getEntityWorld();
-			Entity target = ((ServerLevel) world).getEntity(targetUuid);
+			ServerLevel world = player.level();
+			Entity target = world.getEntity(targetUuid);
 			if (target != null) {
 				// 向所有附近玩家发送数据包 排除发送者自己
 				KissS2CPacket broadcastPayload = new KissS2CPacket(target.getUUID(), senderUuid);
-				for (ServerPlayer nearbyPlayer : ((ServerLevel) world).players()) {
+				for (ServerPlayer nearbyPlayer : world.players()) {
 					if (target.distanceToSqr(nearbyPlayer) > 192 * 192) continue;
 					if (nearbyPlayer.getUUID().equals(senderUuid)) continue;
 					ServerPlayNetworking.send(nearbyPlayer, broadcastPayload);
@@ -79,6 +78,6 @@ public class KissMod implements ModInitializer {
 			}
 		});
 
-		ServerPlayNetworking.registerGlobalReceiver(HandshakeC2SPacket.TYPE, (payload, context) -> ServerPlayNetworking.send(context.player(), new HandshakeS2CPacket()));
+		ServerPlayNetworking.registerGlobalReceiver(HandshakeC2SPacket.TYPE, (_, context) -> ServerPlayNetworking.send(context.player(), new HandshakeS2CPacket()));
 	}
 }

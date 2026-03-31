@@ -5,7 +5,7 @@ import com.awa.kissmod.KissModConfig;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.*;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -138,7 +138,7 @@ public class KissModClient implements ClientModInitializer {
             Identifier.fromNamespaceAndPath("kiss-mod", "keybindings")
     );
     private void registerKeyBinding() {
-        kissKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        kissKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 "key.kiss-mod.kiss",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_F7,

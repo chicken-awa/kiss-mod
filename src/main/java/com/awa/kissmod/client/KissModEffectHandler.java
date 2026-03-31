@@ -43,14 +43,15 @@ public class KissModEffectHandler {
     }
 
     public static void spawnHeartParticles(Level world, Entity entity) {
+        Random random = new Random();
         double x = entity.getX() + KissModConfig.centerOffsetX;
         double y = entity.getY() + entity.getBbHeight() + KissModConfig.centerOffsetY;
         double z = entity.getZ() + KissModConfig.centerOffsetZ;
 
         for (int i = 0; i < KissModConfig.particleCount; i++) {
-            double offsetX = world.random.nextDouble() * (KissModConfig.maxOffsetX * 2) - KissModConfig.maxOffsetX;
-            double offsetY = world.random.nextDouble() * (KissModConfig.maxOffsetY * 2) - KissModConfig.maxOffsetY;
-            double offsetZ = world.random.nextDouble() * (KissModConfig.maxOffsetZ * 2) - KissModConfig.maxOffsetZ;
+            double offsetX = random.nextDouble() * (KissModConfig.maxOffsetX * 2) - KissModConfig.maxOffsetX;
+            double offsetY = random.nextDouble() * (KissModConfig.maxOffsetY * 2) - KissModConfig.maxOffsetY;
+            double offsetZ = random.nextDouble() * (KissModConfig.maxOffsetZ * 2) - KissModConfig.maxOffsetZ;
             world.addParticle(
                     ParticleTypes.HEART,
                     true,

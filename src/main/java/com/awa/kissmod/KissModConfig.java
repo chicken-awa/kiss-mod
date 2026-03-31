@@ -4,6 +4,7 @@ import com.awa.kissmod.client.KissModConfigScreen;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -123,7 +124,7 @@ public class KissModConfig {
                 net.minecraft.client.gui.components.Button backButton =
                         net.minecraft.client.gui.components.Button.builder(
                                         net.minecraft.network.chat.Component.translatable("gui.back"),
-                                        (button) -> net.minecraft.client.Minecraft.getInstance().setScreen(parent)
+                                        (_) -> net.minecraft.client.Minecraft.getInstance().setScreen(parent)
                                 )
                                 .bounds(this.width / 2 - 100, this.height / 2 + 20, 200, 20)
                                 .build();
@@ -132,11 +133,11 @@ public class KissModConfig {
             }
 
             @Override
-            public void render(net.minecraft.client.gui.GuiGraphics context, int mouseX, int mouseY, float delta) {
-                this.renderBackground(context, mouseX, mouseY, delta);
-                super.render(context, mouseX, mouseY, delta);
+            public void extractRenderState(net.minecraft.client.gui.@NonNull GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+                this.extractBackground(context, mouseX, mouseY, delta);
+                super.extractRenderState(context, mouseX, mouseY, delta);
 
-                context.drawCenteredString(
+                context.centeredText(
                         this.font,
                         this.title,
                         this.width / 2,
