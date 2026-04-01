@@ -134,7 +134,6 @@ public class KissModConfig {
 
             @Override
             public void extractRenderState(net.minecraft.client.gui.@NonNull GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
-                this.extractBackground(context, mouseX, mouseY, delta);
                 super.extractRenderState(context, mouseX, mouseY, delta);
 
                 context.centeredText(
@@ -142,7 +141,7 @@ public class KissModConfig {
                         this.title,
                         this.width / 2,
                         this.height / 2 - 10,
-                        0xFFFFFF
+                        0xFFFFFFFF
                 );
             }
         };
