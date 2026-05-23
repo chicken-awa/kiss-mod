@@ -84,7 +84,7 @@ public class KissModClient implements ClientModInitializer {
         Vec3d eyePos = cameraEntity.getCameraPosVec(1.0f);
         Vec3d rotVec = cameraEntity.getRotationVec(1.0f);
 
-        double reach = (client.player != null) ? client.player.getEntityInteractionRange() : 3.0;
+        double reach = (client.player != null && client.player.isCreative()) ? 5.0 : 3.0;
         Vec3d endPos = eyePos.add(rotVec.multiply(reach));
 
         Box searchBox = new Box(eyePos, endPos).expand(1.0, 1.0, 1.0);
@@ -132,21 +132,12 @@ public class KissModClient implements ClientModInitializer {
             wasKeyPressed = isKeyPressed;
         });
     }
-    //? if >=1.21.9{
-    /*public static final KeyBinding.Category KISS_MOD_CATEGORY = KeyBinding.Category.create(
-            Identifier.of("kiss-mod", "keybindings")
-    );
-    *///?}
     private void registerKeyBinding() {
         kissKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.kiss-mod.kiss",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_F7,
-                //? if >=1.21.9{
-                /*KISS_MOD_CATEGORY
-                 *///?} else{
                 "key.category.kiss-mod.keybindings"
-                //?}
         ));
     }
 }

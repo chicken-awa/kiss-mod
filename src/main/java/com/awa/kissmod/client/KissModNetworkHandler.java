@@ -11,6 +11,7 @@ import me.enderkill98.proxlib.ProxPacketIdentifier;
 import me.enderkill98.proxlib.client.ProxLib;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.world.ClientWorld;
@@ -19,6 +20,8 @@ import net.minecraft.entity.Entity;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
+
+import net.minecraft.network.PacketByteBuf;
 import org.slf4j.Logger;
 
 import java.io.*;
@@ -64,7 +67,7 @@ public class KissModNetworkHandler {
         if (KissModConfig.debugLogging) {
             LOGGER.info("发送握手包");
         }
-        ClientPlayNetworking.send(new HandshakeC2SPacket());
+        ClientPlayNetworking.send(HandshakeC2SPacket.PACKET_ID, PacketByteBufs.create());
 
         handshakeThread = new Thread(() -> {
             try {
@@ -73,7 +76,7 @@ public class KissModNetworkHandler {
                     if (KissModConfig.debugLogging) {
                         LOGGER.info("握手包重发(1/2)");
                     }
-                    MinecraftClient.getInstance().execute(() -> ClientPlayNetworking.send(new HandshakeC2SPacket()));
+                    MinecraftClient.getInstance().execute(() -> ClientPlayNetworking.send(HandshakeC2SPacket.PACKET_ID, PacketByteBufs.create()));
                 }
             } catch (InterruptedException e) {
                 return;
@@ -85,7 +88,7 @@ public class KissModNetworkHandler {
                     if (KissModConfig.debugLogging) {
                         LOGGER.info("握手包重发(2/2)");
                     }
-                    MinecraftClient.getInstance().execute(() -> ClientPlayNetworking.send(new HandshakeC2SPacket()));
+                    MinecraftClient.getInstance().execute(() -> ClientPlayNetworking.send(HandshakeC2SPacket.PACKET_ID, PacketByteBufs.create()));
                 }
             } catch (InterruptedException ignored) {
             }
@@ -93,11 +96,11 @@ public class KissModNetworkHandler {
     }
 
     private static void registerClientNetworkReceiver() {
-        ClientPlayNetworking.registerGlobalReceiver(KissS2CPacket.TYPE, (payload, context) -> {
+        ClientPlayNetworking.registerGlobalReceiver(KissS2CPacket.PACKET_ID, (client, handler, buf, responseSender) -> {
             if (KissModConfig.debugLogging) {
                 LOGGER.info("接收到了来自服务器的数据包 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
             }
-            MinecraftClient client = MinecraftClient.getInstance();
+            KissS2CPacket payload = new KissS2CPacket(buf);
             ClientWorld world = client.world;
 
             if (world == null || client.player == null) return;
@@ -112,7 +115,7 @@ public class KissModNetworkHandler {
             }
         });
 
-        ClientPlayNetworking.registerGlobalReceiver(HandshakeS2CPacket.TYPE, (payload, context) -> {
+        ClientPlayNetworking.registerGlobalReceiver(HandshakeS2CPacket.PACKET_ID, (client, handler, buf, responseSender) -> {
             serverHasMod = true;
             LOGGER.info("服务器安装了kiss-mod");
         });
@@ -133,7 +136,9 @@ public class KissModNetworkHandler {
             if (KissModConfig.debugLogging) {
                 LOGGER.info("客户端发送数据包{}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
             }
-            ClientPlayNetworking.send(new KissC2SPacket(target.getUuid(), senderUuid));
+            PacketByteBuf buf = PacketByteBufs.create();
+            new KissC2SPacket(target.getUuid(), senderUuid).write(buf);
+            ClientPlayNetworking.send(KissC2SPacket.PACKET_ID, buf);
         }
     }
 

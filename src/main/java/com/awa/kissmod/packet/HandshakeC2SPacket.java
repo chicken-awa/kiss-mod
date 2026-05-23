@@ -1,23 +1,14 @@
 package com.awa.kissmod.packet;
 
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
-public class HandshakeC2SPacket implements CustomPayload {
-    public static final Identifier PACKET_ID = Identifier.of("kiss-mod", "handshake_c2s");
-    public static final Id<HandshakeC2SPacket> TYPE = new Id<>(PACKET_ID);
-    public static final net.minecraft.network.codec.PacketCodec<RegistryByteBuf, HandshakeC2SPacket> CODEC =
-            net.minecraft.network.packet.CustomPayload.codecOf(HandshakeC2SPacket::write, HandshakeC2SPacket::new);
+public class HandshakeC2SPacket {
+    public static final Identifier PACKET_ID = new Identifier("kiss-mod", "handshake_c2s");
 
     public HandshakeC2SPacket() {}
 
-    public HandshakeC2SPacket(RegistryByteBuf buf) {}
+    public HandshakeC2SPacket(PacketByteBuf buf) {}
 
-    @Override
-    public Id<? extends CustomPayload> getId() {
-        return TYPE;
-    }
-
-    public void write(RegistryByteBuf buf) {}
+    public void write(PacketByteBuf buf) {}
 }

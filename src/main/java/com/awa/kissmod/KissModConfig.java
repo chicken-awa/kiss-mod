@@ -133,6 +133,7 @@ public class KissModConfig {
 
             @Override
             public void render(net.minecraft.client.gui.DrawContext context, int mouseX, int mouseY, float delta) {
+                this.renderBackground(context);
                 super.render(context, mouseX, mouseY, delta);
 
                 context.drawCenteredTextWithShadow(

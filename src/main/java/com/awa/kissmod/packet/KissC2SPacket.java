@@ -1,15 +1,12 @@
 package com.awa.kissmod.packet;
 
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 
 import java.util.UUID;
 
-public class KissC2SPacket implements CustomPayload {
-    public static final Identifier PACKET_ID = Identifier.of("kiss-mod", "kiss_entity_c2s_packet");
-    public static final Id<KissC2SPacket> TYPE = new Id<>(PACKET_ID);
-    public static final net.minecraft.network.codec.PacketCodec<RegistryByteBuf, KissC2SPacket> CODEC = net.minecraft.network.packet.CustomPayload.codecOf(KissC2SPacket::write, KissC2SPacket::new);
+public class KissC2SPacket {
+    public static final Identifier PACKET_ID = new Identifier("kiss-mod", "kiss_entity_c2s_packet");
 
     private final UUID kissedEntityUuid;
     private final UUID senderUuid;
@@ -19,15 +16,11 @@ public class KissC2SPacket implements CustomPayload {
         this.senderUuid = senderUuid;
     }
 
-    public KissC2SPacket(RegistryByteBuf buf) {
+    public KissC2SPacket(PacketByteBuf buf) {
         this.kissedEntityUuid = buf.readUuid();
         this.senderUuid = buf.readUuid();
     }
 
-    @Override
-    public Id<? extends CustomPayload> getId() {
-        return TYPE;
-    }
 
     public UUID getKissedEntityUuid() {
         return this.kissedEntityUuid;
@@ -37,7 +30,7 @@ public class KissC2SPacket implements CustomPayload {
         return this.senderUuid;
     }
 
-    public void write(RegistryByteBuf buf) {
+    public void write(PacketByteBuf buf) {
         buf.writeUuid(this.kissedEntityUuid);
         buf.writeUuid(this.senderUuid);
     }

@@ -52,21 +52,12 @@ public class KissModEffectHandler {
             double offsetX = world.random.nextDouble() * (KissModConfig.maxOffsetX * 2) - KissModConfig.maxOffsetX;
             double offsetY = world.random.nextDouble() * (KissModConfig.maxOffsetY * 2) - KissModConfig.maxOffsetY;
             double offsetZ = world.random.nextDouble() * (KissModConfig.maxOffsetZ * 2) - KissModConfig.maxOffsetZ;
-            //? if >=1.21.5 {
-            /*world.addParticleClient(
-                    ParticleTypes.HEART,
-                    true,
-                    false,
-                    x + offsetX, y + offsetY, z + offsetZ,
-                    0.0, 0.0, 0.0
-            );
-            *///? } else {
             world.addImportantParticle(
                     ParticleTypes.HEART,
                     true,
                     x + offsetX, y + offsetY, z + offsetZ,
                     0.0, 0.0, 0.0
-            );//? }
+            );
         }
     }
 }

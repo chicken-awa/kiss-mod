@@ -5,9 +5,10 @@ import com.awa.kissmod.packet.HandshakeS2CPacket;
 import com.awa.kissmod.packet.KissC2SPacket;
 import com.awa.kissmod.packet.KissS2CPacket;
 import net.fabricmc.api.*;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -31,46 +32,36 @@ public class KissMod implements ModInitializer {
  	*/
 	public static final String MOD_ID = "kiss-mod";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-	public static final Identifier CUSTOM_SOUND_ID = Identifier.of(MOD_ID, "custom_sound");
+	public static final Identifier CUSTOM_SOUND_ID = new Identifier(MOD_ID, "custom_sound");
 	public static final SoundEvent CUSTOM_SOUND_EVENT = Registry.register(
 			Registries.SOUND_EVENT,
 			CUSTOM_SOUND_ID,
 			SoundEvent.of(CUSTOM_SOUND_ID)
 	);
-	public static final Identifier CUSTOM_SOUND1_ID = Identifier.of(MOD_ID, "custom_sound1");
+	public static final Identifier CUSTOM_SOUND1_ID = new Identifier(MOD_ID, "custom_sound1");
 	public static final SoundEvent CUSTOM_SOUND1_EVENT = Registry.register(
 			Registries.SOUND_EVENT,
 			CUSTOM_SOUND1_ID,
 			SoundEvent.of(CUSTOM_SOUND1_ID)
 	);
 
-	public static final Identifier CUSTOM_SOUND2_ID = Identifier.of(MOD_ID, "custom_sound2");
+	public static final Identifier CUSTOM_SOUND2_ID = new Identifier(MOD_ID, "custom_sound2");
 	public static final SoundEvent CUSTOM_SOUND2_EVENT = Registry.register(
 			Registries.SOUND_EVENT,
 			CUSTOM_SOUND2_ID,
 			SoundEvent.of(CUSTOM_SOUND2_ID)
 	);
-	static {
-			PayloadTypeRegistry.playS2C().register(KissS2CPacket.TYPE, KissS2CPacket.CODEC);
-			PayloadTypeRegistry.playC2S().register(KissC2SPacket.TYPE, KissC2SPacket.CODEC);
-			PayloadTypeRegistry.playS2C().register(HandshakeS2CPacket.TYPE, HandshakeS2CPacket.CODEC);
-			PayloadTypeRegistry.playC2S().register(HandshakeC2SPacket.TYPE, HandshakeC2SPacket.CODEC);
-		}
 	@Override
 	public void onInitialize() {
 		System.out.println("KissMod initialized!");
 		registerNetworkReceiver();
 	}
 	private void registerNetworkReceiver() {
-		ServerPlayNetworking.registerGlobalReceiver(KissC2SPacket.TYPE, (payload, context) -> {
-			ServerPlayerEntity player = context.player();
+		ServerPlayNetworking.registerGlobalReceiver(KissC2SPacket.PACKET_ID, (server, player, handler, buf, responseSender) -> {
+			KissC2SPacket payload = new KissC2SPacket(buf);
 			UUID targetUuid = payload.getKissedEntityUuid();
 			UUID senderUuid = payload.getSenderUuid();
-			//? if >=1.21.9{
-			/*World world = player.getEntityWorld();
-			*///?} else{
 			World world = player.getWorld();
-			//?}
 			Entity target = ((ServerWorld) world).getEntity(targetUuid);
 			if (target != null) {
 				// 向所有附近玩家发送数据包 排除发送者自己
@@ -78,11 +69,12 @@ public class KissMod implements ModInitializer {
 				for (ServerPlayerEntity nearbyPlayer : ((ServerWorld) world).getPlayers()) {
 					if (target.squaredDistanceTo(nearbyPlayer) > 192 * 192) continue;
 					if (nearbyPlayer.getUuid().equals(senderUuid)) continue;
-					ServerPlayNetworking.send(nearbyPlayer, broadcastPayload);
+					PacketByteBuf sendBuf = PacketByteBufs.create();
+					broadcastPayload.write(sendBuf);
+					ServerPlayNetworking.send(nearbyPlayer, KissS2CPacket.PACKET_ID, sendBuf);
 				}
 			}
 		});
 
-		ServerPlayNetworking.registerGlobalReceiver(HandshakeC2SPacket.TYPE, (payload, context) -> ServerPlayNetworking.send(context.player(), new HandshakeS2CPacket()));
-	}
+		ServerPlayNetworking.registerGlobalReceiver(HandshakeC2SPacket.PACKET_ID, (server, player, handler, buf, responseSender) -> ServerPlayNetworking.send(player, HandshakeS2CPacket.PACKET_ID, PacketByteBufs.create()));	}
 }
