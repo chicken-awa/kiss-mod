@@ -73,3 +73,9 @@ modrinth {
 tasks.named("modrinth") {
 	outputs.upToDateWhen { false }
 }
+def mcJavaLauncher = javaToolchains.launcherFor {
+	languageVersion = JavaLanguageVersion.of(Integer.parseInt(project.java_version))
+}
+tasks.withType(JavaExec).configureEach {
+	javaLauncher = mcJavaLauncher
+}
