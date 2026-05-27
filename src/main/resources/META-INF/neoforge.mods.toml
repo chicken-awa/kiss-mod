@@ -1,0 +1,29 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="MIT"
+
+[[mods]]
+modId="kiss-mod"
+version="${version}"
+displayName="Kiss Mod"
+displayURL = "https://modrinth.com/plugin/kiss-mod"
+logoFile="assets/kiss-mod/icon.png"
+authors="chicken_awa, lceLantern"
+description="Kiss!"
+
+[[dependencies.kiss-mod]]
+modId="neoforge"
+type="required"
+versionRange="[21,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.kiss-mod]]
+modId="minecraft"
+type="required"
+versionRange="[${minecraft_version},${minecraft_version}]"
+ordering="NONE"
+side="BOTH"
+
+[[mixins]]
+config="kiss-mod.mixins.json"

@@ -2,7 +2,7 @@ package com.awa.kissmod;
 
 import com.awa.kissmod.client.KissModConfigScreen;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -115,28 +115,28 @@ public class KissModConfig {
     }
 
     private static Screen createFallbackScreen(Screen parent) {
-        return new net.minecraft.client.gui.screen.Screen(
-                net.minecraft.text.Text.translatable("message.kissmod.config_required")
+        return new net.minecraft.client.gui.screens.Screen(
+                net.minecraft.network.chat.Component.translatable("message.kissmod.config_required")
         ) {
             @Override
             protected void init() {
-                net.minecraft.client.gui.widget.ButtonWidget backButton =
-                        net.minecraft.client.gui.widget.ButtonWidget.builder(
-                                        net.minecraft.text.Text.translatable("gui.back"),
-                                        (button) -> net.minecraft.client.MinecraftClient.getInstance().setScreen(parent)
+                net.minecraft.client.gui.components.Button backButton =
+                        net.minecraft.client.gui.components.Button.builder(
+                                        net.minecraft.network.chat.Component.translatable("gui.back"),
+                                        (button) -> net.minecraft.client.Minecraft.getInstance().setScreen(parent)
                                 )
-                                .dimensions(this.width / 2 - 100, this.height / 2 + 20, 200, 20)
+                                .bounds(this.width / 2 - 100, this.height / 2 + 20, 200, 20)
                                 .build();
 
-                this.addDrawableChild(backButton);
+                this.addRenderableWidget(backButton);
             }
 
             @Override
-            public void render(net.minecraft.client.gui.DrawContext context, int mouseX, int mouseY, float delta) {
+            public void render(net.minecraft.client.gui.GuiGraphics context, int mouseX, int mouseY, float delta) {
                 super.render(context, mouseX, mouseY, delta);
 
-                context.drawCenteredTextWithShadow(
-                        this.textRenderer,
+                context.drawCenteredString(
+                        this.font,
                         this.title,
                         this.width / 2,
                         this.height / 2 - 10,

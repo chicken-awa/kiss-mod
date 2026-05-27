@@ -1,23 +1,23 @@
 package com.awa.kissmod.packet;
 
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
-public class HandshakeC2SPacket implements CustomPayload {
-    public static final Identifier PACKET_ID = Identifier.of("kiss-mod", "handshake_c2s");
-    public static final Id<HandshakeC2SPacket> TYPE = new Id<>(PACKET_ID);
-    public static final net.minecraft.network.codec.PacketCodec<RegistryByteBuf, HandshakeC2SPacket> CODEC =
-            net.minecraft.network.packet.CustomPayload.codecOf(HandshakeC2SPacket::write, HandshakeC2SPacket::new);
+public class HandshakeC2SPacket implements CustomPacketPayload {
+    public static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("kiss-mod", "handshake_c2s");
+    public static final Type<HandshakeC2SPacket> TYPE = new Type<>(PACKET_ID);
+    public static final net.minecraft.network.codec.StreamCodec<RegistryFriendlyByteBuf, HandshakeC2SPacket> CODEC =
+            net.minecraft.network.protocol.common.custom.CustomPacketPayload.codec(HandshakeC2SPacket::write, HandshakeC2SPacket::new);
 
     public HandshakeC2SPacket() {}
 
-    public HandshakeC2SPacket(RegistryByteBuf buf) {}
+    public HandshakeC2SPacket(RegistryFriendlyByteBuf buf) {}
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
-    public void write(RegistryByteBuf buf) {}
+    public void write(RegistryFriendlyByteBuf buf) {}
 }
