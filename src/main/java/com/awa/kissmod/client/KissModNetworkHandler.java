@@ -9,12 +9,16 @@ import com.awa.kissmod.packet.KissS2CPacket;
 import com.awa.kissmod.proxlib.ProxLibPacketIds;
 import me.enderkill98.proxlib.ProxPacketIdentifier;
 import me.enderkill98.proxlib.client.ProxLib;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.world.entity.Entity;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -31,39 +35,36 @@ public class KissModNetworkHandler {
     private static final Logger LOGGER = KissMod.LOGGER;
 
     public static void registerHandlers() {
-        registerConnectionEvents();
-        registerClientNetworkReceiver();
         registerProxLibHandler();
     }
 
     //加入服务器发握手包
-    private static void registerConnectionEvents() {
-        ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-            serverHasMod = false;
-            ServerData serverInfo = Minecraft.getInstance().getCurrentServer();
-            if (serverInfo != null) {
-                currentServerAddress = serverInfo.ip;
-            }
+    @SubscribeEvent
+    public static void onPlayerLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
+        serverHasMod = false;
+        ServerData serverInfo = Minecraft.getInstance().getCurrentServer();
+        if (serverInfo != null) {
+            currentServerAddress = serverInfo.ip;
+        }
+        if (KissModConfig.debugLogging) {
+            LOGGER.info("服务器地址: {}", currentServerAddress);
+        }
+        sendHandshakeWithRetry();
+    }
 
-            if (KissModConfig.debugLogging) {
-                LOGGER.info("服务器地址: {}", currentServerAddress);
-            }
-            sendHandshakeWithRetry();
-        });
-
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
-            if (handshakeThread != null && handshakeThread.isAlive()) {
-                handshakeThread.interrupt();
-                handshakeThread = null;
-            }
-        });
+    @SubscribeEvent
+    public static void onPlayerLoggedOut(ClientPlayerNetworkEvent.LoggingOut event) {
+        if (handshakeThread != null && handshakeThread.isAlive()) {
+            handshakeThread.interrupt();
+            handshakeThread = null;
+        }
     }
 
     private static void sendHandshakeWithRetry() {
         if (KissModConfig.debugLogging) {
             LOGGER.info("发送握手包");
         }
-        ClientPlayNetworking.send(new HandshakeC2SPacket());
+        PacketDistributor.sendToServer(new HandshakeC2SPacket());
 
         handshakeThread = new Thread(() -> {
             try {
@@ -72,7 +73,7 @@ public class KissModNetworkHandler {
                     if (KissModConfig.debugLogging) {
                         LOGGER.info("握手包重发(1/2)");
                     }
-                    Minecraft.getInstance().execute(() -> ClientPlayNetworking.send(new HandshakeC2SPacket()));
+                    Minecraft.getInstance().execute(() -> PacketDistributor.sendToServer(new HandshakeC2SPacket()));
                 }
             } catch (InterruptedException e) {
                 return;
@@ -84,37 +85,43 @@ public class KissModNetworkHandler {
                     if (KissModConfig.debugLogging) {
                         LOGGER.info("握手包重发(2/2)");
                     }
-                    Minecraft.getInstance().execute(() -> ClientPlayNetworking.send(new HandshakeC2SPacket()));
+                    Minecraft.getInstance().execute(() -> PacketDistributor.sendToServer(new HandshakeC2SPacket()));
                 }
             } catch (InterruptedException ignored) {
             }
         });handshakeThread.start();
     }
+    @EventBusSubscriber(modid = KissMod.MOD_ID, value = Dist.CLIENT)
+    public static class ModBusEvents {
+        @SubscribeEvent
+        public static void onRegisterPayloads(RegisterPayloadHandlersEvent event) {
+            var registrar = event.registrar(KissMod.MOD_ID);
 
-    private static void registerClientNetworkReceiver() {
-        ClientPlayNetworking.registerGlobalReceiver(KissS2CPacket.TYPE, (payload, context) -> {
-            if (KissModConfig.debugLogging) {
-                LOGGER.info("接收到了来自服务器的数据包 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
-            }
-            Minecraft client = Minecraft.getInstance();
-            ClientLevel world = client.level;
+            registrar.playToClient(KissS2CPacket.TYPE, KissS2CPacket.CODEC, (payload, context) -> {
+                context.enqueueWork(() -> {
+                    if (KissModConfig.debugLogging) {
+                        LOGGER.info("接收到了来自服务器的数据包 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+                    }
+                    Minecraft client = Minecraft.getInstance();
+                    ClientLevel world = client.level;
+                    if (world == null || client.player == null) return;
+                    if (!KissModConfig.showOthersKiss) return;
+                    if (client.player.getUUID().equals(payload.getWhoPattedUuid())) return;
+                    UUID targetUuid = payload.getPattedEntityUuid();
+                    for (Entity entity : world.entitiesForRendering()) {
+                        if (entity.getUUID().equals(targetUuid)) {
+                            KissModEffectHandler.triggerEffect(entity, world);
+                            break;
+                        }
+                    }
+                });
+            });
 
-            if (world == null || client.player == null) return;
-            if (!KissModConfig.showOthersKiss) return;
-            if (client.player.getUUID().equals(payload.getWhoPattedUuid())) return;
-            UUID targetUuid = payload.getPattedEntityUuid();
-            for (Entity entity : world.entitiesForRendering()) {
-                if (entity.getUUID().equals(targetUuid)) {
-                    KissModEffectHandler.triggerEffect(entity, world);
-                    break;
-                }
-            }
-        });
-
-        ClientPlayNetworking.registerGlobalReceiver(HandshakeS2CPacket.TYPE, (payload, context) -> {
-            serverHasMod = true;
-            LOGGER.info("服务器安装了kiss-mod");
-        });
+            registrar.playToClient(HandshakeS2CPacket.TYPE, HandshakeS2CPacket.CODEC, (payload, context) -> {
+                serverHasMod = true;
+                LOGGER.info("服务器安装了kiss-mod");
+            });
+        }
     }
 
     public static void sendKissPacket(Entity target) {
@@ -132,7 +139,7 @@ public class KissModNetworkHandler {
             if (KissModConfig.debugLogging) {
                 LOGGER.info("客户端发送数据包{}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
             }
-            ClientPlayNetworking.send(new KissC2SPacket(target.getUUID(), senderUuid));
+            PacketDistributor.sendToServer(new KissC2SPacket(target.getUUID(), senderUuid));
         }
     }
 

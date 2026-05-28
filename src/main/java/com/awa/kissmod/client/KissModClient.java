@@ -3,10 +3,6 @@ package com.awa.kissmod.client;
 import com.awa.kissmod.KissMod;
 import com.awa.kissmod.KissModConfig;
 import com.mojang.blaze3d.platform.InputConstants;
-import net.fabricmc.api.*;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.*;
@@ -14,6 +10,12 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
@@ -21,7 +23,7 @@ import org.slf4j.Logger;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-public class KissModClient implements ClientModInitializer {
+public class KissModClient {
 
     private static KeyMapping kissKey;
     private static boolean wasKeyPressed = false;
@@ -30,9 +32,8 @@ public class KissModClient implements ClientModInitializer {
     private static long lastRightClickTriggerTime = 0;
     private static final Logger LOGGER = KissMod.LOGGER;
 
-    @Override
-    public void onInitializeClient() {
-        if (FabricLoader.getInstance().isModLoaded("cloth-config")) {
+    public static void init() {
+        if (ModList.get().isLoaded("cloth-config")) {
             KissMod.LOGGER.info("Cloth Config detected");
         } else {
             KissMod.LOGGER.info("Cloth Config not detected");
@@ -40,41 +41,38 @@ public class KissModClient implements ClientModInitializer {
 
         registerKeyBinding();
 
-        registerRightClickEvent();
-        registerKeyTriggerEvent();
-
         KissModNetworkHandler.registerHandlers();
-        KissModCommandRegistration.registerCommands();
         KissModConfig.loadConfig();
         System.out.println("KissModClient initialized!");
     }
-    private void registerRightClickEvent() {
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            long handle = client.getWindow().getWindow();
-            boolean isRightClickPressed =
-                    GLFW.glfwGetMouseButton(handle, GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
-            long currentTime = System.currentTimeMillis();
 
-            if (KissModConfig.rightClickEnabled &&
-                    client.player != null &&
-                    client.level != null &&
-                    client.screen == null &&
-                    client.options.keyShift.isDown()) {
-                if (isRightClickPressed && (!wasRightClickPressed || currentTime - lastRightClickTriggerTime >= KissModConfig.triggerCooldown)) {
-                    Entity target = getEntityFromCameraRaycast(client);
-                    if (target != null) {
-                        if (KissModConfig.debugLogging) {
-                            LOGGER.info("客户端将发送数据包 右键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
-                        }
-                        KissModNetworkHandler.sendKissPacket(target);
-                        KissModEffectHandler.triggerEffect(target, client.level);
-                        client.player.swing(InteractionHand.MAIN_HAND);
-                        lastRightClickTriggerTime = currentTime;
+    @SubscribeEvent
+    public static void onRightClickTick(ClientTickEvent.Post event) {
+        Minecraft client = Minecraft.getInstance();
+        long handle = client.getWindow().getWindow();
+        boolean isRightClickPressed =
+                GLFW.glfwGetMouseButton(handle, GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
+        long currentTime = System.currentTimeMillis();
+
+        if (KissModConfig.rightClickEnabled &&
+                client.player != null &&
+                client.level != null &&
+                client.screen == null &&
+                client.options.keyShift.isDown()) {
+            if (isRightClickPressed && (!wasRightClickPressed || currentTime - lastRightClickTriggerTime >= KissModConfig.triggerCooldown)) {
+                Entity target = getEntityFromCameraRaycast(client);
+                if (target != null) {
+                    if (KissModConfig.debugLogging) {
+                        LOGGER.info("客户端将发送数据包 右键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
                     }
+                    KissModNetworkHandler.sendKissPacket(target);
+                    KissModEffectHandler.triggerEffect(target, client.level);
+                    client.player.swing(InteractionHand.MAIN_HAND);
+                    lastRightClickTriggerTime = currentTime;
                 }
             }
-            wasRightClickPressed = isRightClickPressed;
-        });
+        }
+        wasRightClickPressed = isRightClickPressed;
     }
     @Nullable
     private static Entity getEntityFromCameraRaycast(Minecraft client) {
@@ -109,37 +107,45 @@ public class KissModClient implements ClientModInitializer {
         }
         return closestEntity;
     }
-    private void registerKeyTriggerEvent() {
-        ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            boolean isKeyPressed = kissKey.isDown();
-            long currentTime = System.currentTimeMillis();
 
-            if (isKeyPressed && (!wasKeyPressed || (currentTime - lastTriggerTime >= KissModConfig.triggerCooldown))) {
-                Entity target = getEntityFromCameraRaycast(client);
-                if (target != null) {
-                    if (KissModConfig.debugLogging) {
-                        LOGGER.info("客户端将发送数据包 按键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
-                    }
-                    KissModNetworkHandler.sendKissPacket(target);
-                    if (client.level != null) {
-                        KissModEffectHandler.triggerEffect(target, client.level);
-                    }
-                    if (client.player != null) {
-                        client.player.swing(InteractionHand.MAIN_HAND);
-                    }
+    @SubscribeEvent
+    public static void onKeyTriggerTick(ClientTickEvent.Post event) {
+        Minecraft client = Minecraft.getInstance();
+        boolean isKeyPressed = kissKey.isDown();
+        long currentTime = System.currentTimeMillis();
+
+        if (isKeyPressed && (!wasKeyPressed || (currentTime - lastTriggerTime >= KissModConfig.triggerCooldown))) {
+            Entity target = getEntityFromCameraRaycast(client);
+            if (target != null) {
+                if (KissModConfig.debugLogging) {
+                    LOGGER.info("客户端将发送数据包 按键 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
                 }
-                lastTriggerTime = currentTime;
+                KissModNetworkHandler.sendKissPacket(target);
+                if (client.level != null) {
+                    KissModEffectHandler.triggerEffect(target, client.level);
+                }
+                if (client.player != null) {
+                    client.player.swing(InteractionHand.MAIN_HAND);
+                }
             }
-            wasKeyPressed = isKeyPressed;
-        });
+            lastTriggerTime = currentTime;
+        }
+        wasKeyPressed = isKeyPressed;
+    }
+    @EventBusSubscriber(modid = KissMod.MOD_ID, value = Dist.CLIENT)
+    public static class ModBusEvents {
+        @SubscribeEvent
+        public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
+            event.register(kissKey);
+        }
     }
     //? if >=1.21.9{
     /*public static final KeyMapping.Category KISS_MOD_CATEGORY = KeyMapping.Category.register(
             Identifier.fromNamespaceAndPath("kiss-mod", "keybindings")
     );
     *///?}
-    private void registerKeyBinding() {
-        kissKey = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+    private static void registerKeyBinding() {
+        kissKey = new KeyMapping(
                 "key.kiss-mod.kiss",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_F7,
@@ -148,6 +154,6 @@ public class KissModClient implements ClientModInitializer {
                  *///?} else{
                 "key.category.kiss-mod.keybindings"
                 //?}
-        ));
+        );
     }
 }

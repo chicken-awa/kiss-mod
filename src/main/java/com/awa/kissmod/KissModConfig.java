@@ -1,7 +1,8 @@
 package com.awa.kissmod;
 
 import com.awa.kissmod.client.KissModConfigScreen;
-import net.fabricmc.loader.api.FabricLoader;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.loading.FMLPaths;
 import net.minecraft.client.gui.screens.Screen;
 import org.jetbrains.annotations.NotNull;
 
@@ -15,7 +16,7 @@ import java.util.Properties;
 
 public class KissModConfig {
     private static final Path CONFIG_PATH = 
-            FabricLoader.getInstance().getConfigDir().resolve("kissmod.properties");
+            FMLPaths.CONFIGDIR.get().resolve("kissmod.properties");
 
     public static boolean rightClickEnabled = true;
     public static boolean soundEnabled = true;
@@ -102,7 +103,7 @@ public class KissModConfig {
     }
 
     public static Screen getScreen(Screen parent) {
-        if (FabricLoader.getInstance().isModLoaded("cloth-config")) {
+        if (ModList.get().isLoaded("cloth-config")) {
             try {
                 return KissModConfigScreen.createConfigScreen(parent);
             } catch (Exception e) {

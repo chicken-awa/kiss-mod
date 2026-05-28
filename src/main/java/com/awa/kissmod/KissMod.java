@@ -4,9 +4,6 @@ import com.awa.kissmod.packet.HandshakeC2SPacket;
 import com.awa.kissmod.packet.HandshakeS2CPacket;
 import com.awa.kissmod.packet.KissC2SPacket;
 import com.awa.kissmod.packet.KissS2CPacket;
-import net.fabricmc.api.*;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -16,12 +13,17 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.*;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
 
-public class KissMod implements ModInitializer {
+@Mod(KissMod.MOD_ID)
+public class KissMod {
 	/*
 	啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊啊饱饱你是一个一个一个一个哈基米啊啊啊啊啊啊！！！
 	awa! 		ヾ(≧▽≦*)o   			 ૮(˶ᵔ ᵕ ᵔ˶)ა   		   	qwq!
@@ -50,39 +52,37 @@ public class KissMod implements ModInitializer {
 			CUSTOM_SOUND2_ID,
 			SoundEvent.createVariableRangeEvent(CUSTOM_SOUND2_ID)
 	);
-	static {
-			PayloadTypeRegistry.playS2C().register(KissS2CPacket.TYPE, KissS2CPacket.CODEC);
-			PayloadTypeRegistry.playC2S().register(KissC2SPacket.TYPE, KissC2SPacket.CODEC);
-			PayloadTypeRegistry.playS2C().register(HandshakeS2CPacket.TYPE, HandshakeS2CPacket.CODEC);
-			PayloadTypeRegistry.playC2S().register(HandshakeC2SPacket.TYPE, HandshakeC2SPacket.CODEC);
-		}
-	@Override
-	public void onInitialize() {
+	public KissMod(IEventBus modEventBus) {
 		System.out.println("KissMod initialized!");
-		registerNetworkReceiver();
+		modEventBus.addListener(this::registerPayloads);
 	}
-	private void registerNetworkReceiver() {
-		ServerPlayNetworking.registerGlobalReceiver(KissC2SPacket.TYPE, (payload, context) -> {
-			ServerPlayer player = context.player();
-			UUID targetUuid = payload.getKissedEntityUuid();
-			UUID senderUuid = payload.getSenderUuid();
-			//? if >=1.21.9{
-			/*Level world = player.level();
-			*///?} else{
-			Level world = player.level();
-			//?}
-			Entity target = ((ServerLevel) world).getEntity(targetUuid);
-			if (target != null) {
-				// 向所有附近玩家发送数据包 排除发送者自己
-				KissS2CPacket broadcastPayload = new KissS2CPacket(target.getUUID(), senderUuid);
-				for (ServerPlayer nearbyPlayer : ((ServerLevel) world).players()) {
-					if (target.distanceToSqr(nearbyPlayer) > 192 * 192) continue;
-					if (nearbyPlayer.getUUID().equals(senderUuid)) continue;
-					ServerPlayNetworking.send(nearbyPlayer, broadcastPayload);
+
+	private void registerPayloads(RegisterPayloadHandlersEvent event) {
+		var registrar = event.registrar(MOD_ID);
+
+		registrar.playToServer(KissC2SPacket.TYPE, KissC2SPacket.CODEC, (payload, context) -> {
+			context.enqueueWork(() -> {
+				ServerPlayer player = (ServerPlayer) context.player();
+				UUID targetUuid = payload.getKissedEntityUuid();
+				UUID senderUuid = payload.getSenderUuid();
+				//? if >=1.21.9{
+				/*Level world = player.level();
+				 *///?} else{
+				Level world = player.level();
+				//?}
+				Entity target = ((ServerLevel) world).getEntity(targetUuid);
+				if (target != null) {
+					// 向所有附近玩家发送数据包 排除发送者自己
+					KissS2CPacket broadcastPayload = new KissS2CPacket(target.getUUID(), senderUuid);
+					for (ServerPlayer nearbyPlayer : ((ServerLevel) world).players()) {
+						if (target.distanceToSqr(nearbyPlayer) > 192 * 192) continue;
+						if (nearbyPlayer.getUUID().equals(senderUuid)) continue;
+						PacketDistributor.sendToPlayer(nearbyPlayer, broadcastPayload);
+					}
 				}
-			}
+			});
 		});
 
-		ServerPlayNetworking.registerGlobalReceiver(HandshakeC2SPacket.TYPE, (payload, context) -> ServerPlayNetworking.send(context.player(), new HandshakeS2CPacket()));
+		registrar.playToServer(HandshakeC2SPacket.TYPE, HandshakeC2SPacket.CODEC, (payload, context) -> context.reply(new HandshakeS2CPacket()));
 	}
 }
