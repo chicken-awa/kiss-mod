@@ -31,22 +31,22 @@ public class KissMod {
 	awa~ 		o((>ω< ))o  			 ο(=•ω＜=)ρ⌒☆			qwq~
 	🐱喵喵喵喵喵喵喵喵喵喵喵喵喵喵喵喵喵喵~~~~~~~~~~~~~~~~~~~~~~~~~~~🐾🐾🐾
  	*/
-	public static final String MOD_ID = "kiss-mod";
+	public static final String MOD_ID = "kiss_mod";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-	public static final ResourceLocation CUSTOM_SOUND_ID = ResourceLocation.fromNamespaceAndPath(MOD_ID, "custom_sound");
+	public static final ResourceLocation CUSTOM_SOUND_ID = ResourceLocation.fromNamespaceAndPath("kiss-mod", "custom_sound");
 	public static final SoundEvent CUSTOM_SOUND_EVENT = Registry.register(
 			BuiltInRegistries.SOUND_EVENT,
 			CUSTOM_SOUND_ID,
 			SoundEvent.createVariableRangeEvent(CUSTOM_SOUND_ID)
 	);
-	public static final ResourceLocation CUSTOM_SOUND1_ID = ResourceLocation.fromNamespaceAndPath(MOD_ID, "custom_sound1");
+	public static final ResourceLocation CUSTOM_SOUND1_ID = ResourceLocation.fromNamespaceAndPath("kiss-mod", "custom_sound1");
 	public static final SoundEvent CUSTOM_SOUND1_EVENT = Registry.register(
 			BuiltInRegistries.SOUND_EVENT,
 			CUSTOM_SOUND1_ID,
 			SoundEvent.createVariableRangeEvent(CUSTOM_SOUND1_ID)
 	);
 
-	public static final ResourceLocation CUSTOM_SOUND2_ID = ResourceLocation.fromNamespaceAndPath(MOD_ID, "custom_sound2");
+	public static final ResourceLocation CUSTOM_SOUND2_ID = ResourceLocation.fromNamespaceAndPath("kiss-mod", "custom_sound2");
 	public static final SoundEvent CUSTOM_SOUND2_EVENT = Registry.register(
 			BuiltInRegistries.SOUND_EVENT,
 			CUSTOM_SOUND2_ID,

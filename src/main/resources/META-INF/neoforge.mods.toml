@@ -3,7 +3,7 @@ loaderVersion="[1,)"
 license="MIT"
 
 [[mods]]
-modId="kiss-mod"
+modId="kiss_mod"
 version="${version}"
 displayName="Kiss Mod"
 displayURL = "https://modrinth.com/plugin/kiss-mod"
@@ -11,14 +11,14 @@ logoFile="assets/kiss-mod/icon.png"
 authors="chicken_awa, lceLantern"
 description="Kiss!"
 
-[[dependencies.kiss-mod]]
+[[dependencies.kiss_mod]]
 modId="neoforge"
 type="required"
 versionRange="[21,)"
 ordering="NONE"
 side="BOTH"
 
-[[dependencies.kiss-mod]]
+[[dependencies.kiss_mod]]
 modId="minecraft"
 type="required"
 versionRange="${minecraft_version}"

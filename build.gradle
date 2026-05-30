@@ -41,7 +41,7 @@ neoForge {
 		}
 	}
 	mods {
-		register("kiss-mod") {
+		register("kiss_mod") {
 			sourceSet(sourceSets.main)
 		}
 	}
