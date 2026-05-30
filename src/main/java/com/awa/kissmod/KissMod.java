@@ -4,23 +4,23 @@ import com.awa.kissmod.packet.HandshakeC2SPacket;
 import com.awa.kissmod.packet.HandshakeS2CPacket;
 import com.awa.kissmod.packet.KissC2SPacket;
 import com.awa.kissmod.packet.KissS2CPacket;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.util.*;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
+import java.util.function.Supplier;
 
 @Mod(KissMod.MOD_ID)
 public class KissMod {
@@ -33,32 +33,26 @@ public class KissMod {
  	*/
 	public static final String MOD_ID = "kiss_mod";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-	public static final ResourceLocation CUSTOM_SOUND_ID = ResourceLocation.fromNamespaceAndPath("kiss-mod", "custom_sound");
-	public static final SoundEvent CUSTOM_SOUND_EVENT = Registry.register(
-			BuiltInRegistries.SOUND_EVENT,
-			CUSTOM_SOUND_ID,
-			SoundEvent.createVariableRangeEvent(CUSTOM_SOUND_ID)
-	);
-	public static final ResourceLocation CUSTOM_SOUND1_ID = ResourceLocation.fromNamespaceAndPath("kiss-mod", "custom_sound1");
-	public static final SoundEvent CUSTOM_SOUND1_EVENT = Registry.register(
-			BuiltInRegistries.SOUND_EVENT,
-			CUSTOM_SOUND1_ID,
-			SoundEvent.createVariableRangeEvent(CUSTOM_SOUND1_ID)
-	);
+	public static final DeferredRegister<SoundEvent> SOUND_EVENTS =
+			DeferredRegister.create(BuiltInRegistries.SOUND_EVENT, "kiss-mod");
 
-	public static final ResourceLocation CUSTOM_SOUND2_ID = ResourceLocation.fromNamespaceAndPath("kiss-mod", "custom_sound2");
-	public static final SoundEvent CUSTOM_SOUND2_EVENT = Registry.register(
-			BuiltInRegistries.SOUND_EVENT,
-			CUSTOM_SOUND2_ID,
-			SoundEvent.createVariableRangeEvent(CUSTOM_SOUND2_ID)
-	);
+	public static final Supplier<SoundEvent> CUSTOM_SOUND_EVENT = SOUND_EVENTS.register(
+			"custom_sound", () -> SoundEvent.createVariableRangeEvent(
+					ResourceLocation.fromNamespaceAndPath("kiss-mod", "custom_sound")));
+	public static final Supplier<SoundEvent> CUSTOM_SOUND1_EVENT = SOUND_EVENTS.register(
+			"custom_sound1", () -> SoundEvent.createVariableRangeEvent(
+					ResourceLocation.fromNamespaceAndPath("kiss-mod", "custom_sound1")));
+	public static final Supplier<SoundEvent> CUSTOM_SOUND2_EVENT = SOUND_EVENTS.register(
+			"custom_sound2", () -> SoundEvent.createVariableRangeEvent(
+					ResourceLocation.fromNamespaceAndPath("kiss-mod", "custom_sound2")));
 	public KissMod(IEventBus modEventBus) {
 		System.out.println("KissMod initialized!");
+		SOUND_EVENTS.register(modEventBus);
 		modEventBus.addListener(this::registerPayloads);
 	}
 
 	private void registerPayloads(RegisterPayloadHandlersEvent event) {
-		var registrar = event.registrar(MOD_ID);
+		var registrar = event.registrar(MOD_ID).optional();
 
 		registrar.playToServer(KissC2SPacket.TYPE, KissC2SPacket.CODEC, (payload, context) -> {
 			context.enqueueWork(() -> {

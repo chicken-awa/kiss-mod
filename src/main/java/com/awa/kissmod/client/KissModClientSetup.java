@@ -10,8 +10,8 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
-@EventBusSubscriber(modid = KissMod.MOD_ID, value = Dist.CLIENT)
-public class KissModConfigScreenHandler {
+@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = KissMod.MOD_ID, value = Dist.CLIENT)
+public class KissModClientSetup {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         NeoForge.EVENT_BUS.register(KissModNetworkHandler.class);

@@ -64,7 +64,9 @@ public class KissModNetworkHandler {
         if (KissModConfig.debugLogging) {
             LOGGER.info("发送握手包");
         }
-        PacketDistributor.sendToServer(new HandshakeC2SPacket());
+        try {
+            PacketDistributor.sendToServer(new HandshakeC2SPacket());
+        } catch (UnsupportedOperationException ignored) {}
 
         handshakeThread = new Thread(() -> {
             try {
@@ -73,7 +75,11 @@ public class KissModNetworkHandler {
                     if (KissModConfig.debugLogging) {
                         LOGGER.info("握手包重发(1/2)");
                     }
-                    Minecraft.getInstance().execute(() -> PacketDistributor.sendToServer(new HandshakeC2SPacket()));
+                    Minecraft.getInstance().execute(() -> {
+                        try {
+                            PacketDistributor.sendToServer(new HandshakeC2SPacket());
+                        } catch (UnsupportedOperationException ignored) {}
+                    });
                 }
             } catch (InterruptedException e) {
                 return;
@@ -85,17 +91,21 @@ public class KissModNetworkHandler {
                     if (KissModConfig.debugLogging) {
                         LOGGER.info("握手包重发(2/2)");
                     }
-                    Minecraft.getInstance().execute(() -> PacketDistributor.sendToServer(new HandshakeC2SPacket()));
+                    Minecraft.getInstance().execute(() -> {
+                        try {
+                            PacketDistributor.sendToServer(new HandshakeC2SPacket());
+                        } catch (UnsupportedOperationException ignored) {}
+                    });
                 }
             } catch (InterruptedException ignored) {
             }
         });handshakeThread.start();
     }
-    @EventBusSubscriber(modid = KissMod.MOD_ID, value = Dist.CLIENT)
+    @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = KissMod.MOD_ID, value = Dist.CLIENT)
     public static class ModBusEvents {
         @SubscribeEvent
         public static void onRegisterPayloads(RegisterPayloadHandlersEvent event) {
-            var registrar = event.registrar(KissMod.MOD_ID);
+            var registrar = event.registrar(KissMod.MOD_ID).optional();
 
             registrar.playToClient(KissS2CPacket.TYPE, KissS2CPacket.CODEC, (payload, context) -> {
                 context.enqueueWork(() -> {

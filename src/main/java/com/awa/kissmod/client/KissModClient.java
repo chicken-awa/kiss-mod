@@ -32,14 +32,16 @@ public class KissModClient {
     private static long lastRightClickTriggerTime = 0;
     private static final Logger LOGGER = KissMod.LOGGER;
 
+    static {
+        registerKeyBinding();
+    }
+
     public static void init() {
-        if (ModList.get().isLoaded("cloth-config")) {
+        if (ModList.get().isLoaded("cloth_config")) {
             KissMod.LOGGER.info("Cloth Config detected");
         } else {
             KissMod.LOGGER.info("Cloth Config not detected");
         }
-
-        registerKeyBinding();
 
         KissModNetworkHandler.registerHandlers();
         KissModConfig.loadConfig();
@@ -132,7 +134,7 @@ public class KissModClient {
         }
         wasKeyPressed = isKeyPressed;
     }
-    @EventBusSubscriber(modid = KissMod.MOD_ID, value = Dist.CLIENT)
+    @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = KissMod.MOD_ID, value = Dist.CLIENT)
     public static class ModBusEvents {
         @SubscribeEvent
         public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {

@@ -25,9 +25,9 @@ public class KissModEffectHandler {
                     KissMod.LOGGER.info("播放声音 at {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
                 }
                 SoundEvent[] soundEvents = {
-                        KissMod.CUSTOM_SOUND_EVENT,
-                        KissMod.CUSTOM_SOUND1_EVENT,
-                        KissMod.CUSTOM_SOUND2_EVENT};
+                        KissMod.CUSTOM_SOUND_EVENT.get(),
+                        KissMod.CUSTOM_SOUND1_EVENT.get(),
+                        KissMod.CUSTOM_SOUND2_EVENT.get()};
                 SoundEvent randomSound = soundEvents[new Random().nextInt(soundEvents.length)];
 
                 world.playSound(

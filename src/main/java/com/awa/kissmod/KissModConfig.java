@@ -103,7 +103,7 @@ public class KissModConfig {
     }
 
     public static Screen getScreen(Screen parent) {
-        if (ModList.get().isLoaded("cloth-config")) {
+        if (ModList.get().isLoaded("cloth_config")) {
             try {
                 return KissModConfigScreen.createConfigScreen(parent);
             } catch (Exception e) {
