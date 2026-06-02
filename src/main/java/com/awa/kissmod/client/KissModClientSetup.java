@@ -10,7 +10,11 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
+//? if >=1.21.1 {
+/*@EventBusSubscriber(modid = KissMod.MOD_ID, value = Dist.CLIENT)
+*///? } else {
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = KissMod.MOD_ID, value = Dist.CLIENT)
+//? }
 public class KissModClientSetup {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {

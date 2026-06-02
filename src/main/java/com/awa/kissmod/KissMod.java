@@ -5,7 +5,11 @@ import com.awa.kissmod.packet.HandshakeS2CPacket;
 import com.awa.kissmod.packet.KissC2SPacket;
 import com.awa.kissmod.packet.KissS2CPacket;
 import net.minecraft.core.registries.BuiltInRegistries;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -38,13 +42,25 @@ public class KissMod {
 
 	public static final Supplier<SoundEvent> CUSTOM_SOUND_EVENT = SOUND_EVENTS.register(
 			"custom_sound", () -> SoundEvent.createVariableRangeEvent(
+					//? if >=1.21.11 {
+					/*Identifier.fromNamespaceAndPath("kiss-mod", "custom_sound")));
+					*///?} else {
 					ResourceLocation.fromNamespaceAndPath("kiss-mod", "custom_sound")));
+					//?}
 	public static final Supplier<SoundEvent> CUSTOM_SOUND1_EVENT = SOUND_EVENTS.register(
 			"custom_sound1", () -> SoundEvent.createVariableRangeEvent(
+					//? if >=1.21.11 {
+					/*Identifier.fromNamespaceAndPath("kiss-mod", "custom_sound1")));
+					*///?} else {
 					ResourceLocation.fromNamespaceAndPath("kiss-mod", "custom_sound1")));
+					//?}
 	public static final Supplier<SoundEvent> CUSTOM_SOUND2_EVENT = SOUND_EVENTS.register(
 			"custom_sound2", () -> SoundEvent.createVariableRangeEvent(
+					//? if >=1.21.11 {
+					/*Identifier.fromNamespaceAndPath("kiss-mod", "custom_sound2")));
+					*///?} else {
 					ResourceLocation.fromNamespaceAndPath("kiss-mod", "custom_sound2")));
+					//?}
 	public KissMod(IEventBus modEventBus) {
 		System.out.println("KissMod initialized!");
 		SOUND_EVENTS.register(modEventBus);
@@ -54,28 +70,22 @@ public class KissMod {
 	private void registerPayloads(RegisterPayloadHandlersEvent event) {
 		var registrar = event.registrar(MOD_ID).optional();
 
-		registrar.playToServer(KissC2SPacket.TYPE, KissC2SPacket.CODEC, (payload, context) -> {
-			context.enqueueWork(() -> {
-				ServerPlayer player = (ServerPlayer) context.player();
-				UUID targetUuid = payload.getKissedEntityUuid();
-				UUID senderUuid = payload.getSenderUuid();
-				//? if >=1.21.9{
-				/*Level world = player.level();
-				 *///?} else{
-				Level world = player.level();
-				//?}
-				Entity target = ((ServerLevel) world).getEntity(targetUuid);
-				if (target != null) {
-					// 向所有附近玩家发送数据包 排除发送者自己
-					KissS2CPacket broadcastPayload = new KissS2CPacket(target.getUUID(), senderUuid);
-					for (ServerPlayer nearbyPlayer : ((ServerLevel) world).players()) {
-						if (target.distanceToSqr(nearbyPlayer) > 192 * 192) continue;
-						if (nearbyPlayer.getUUID().equals(senderUuid)) continue;
-						PacketDistributor.sendToPlayer(nearbyPlayer, broadcastPayload);
-					}
-				}
-			});
-		});
+		registrar.playToServer(KissC2SPacket.TYPE, KissC2SPacket.CODEC, (payload, context) -> context.enqueueWork(() -> {
+            ServerPlayer player = (ServerPlayer) context.player();
+            UUID targetUuid = payload.getKissedEntityUuid();
+            UUID senderUuid = payload.getSenderUuid();
+            Level world = player.level();
+            Entity target = ((ServerLevel) world).getEntity(targetUuid);
+            if (target != null) {
+                // 向所有附近玩家发送数据包 排除发送者自己
+                KissS2CPacket broadcastPayload = new KissS2CPacket(target.getUUID(), senderUuid);
+                for (ServerPlayer nearbyPlayer : ((ServerLevel) world).players()) {
+                    if (target.distanceToSqr(nearbyPlayer) > 192 * 192) continue;
+                    if (nearbyPlayer.getUUID().equals(senderUuid)) continue;
+                    PacketDistributor.sendToPlayer(nearbyPlayer, broadcastPayload);
+                }
+            }
+        }));
 
 		registrar.playToServer(HandshakeC2SPacket.TYPE, HandshakeC2SPacket.CODEC, (payload, context) -> context.reply(new HandshakeS2CPacket()));
 	}

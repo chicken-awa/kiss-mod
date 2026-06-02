@@ -17,7 +17,11 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+//? if >=1.21.7 {
+/*import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+*///? } else {
 import net.neoforged.neoforge.network.PacketDistributor;
+//? }
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -65,7 +69,11 @@ public class KissModNetworkHandler {
             LOGGER.info("发送握手包");
         }
         try {
+            //? if >=1.21.7 {
+            /*ClientPacketDistributor.sendToServer(new HandshakeC2SPacket());
+            *///? } else {
             PacketDistributor.sendToServer(new HandshakeC2SPacket());
+            //? }
         } catch (UnsupportedOperationException ignored) {}
 
         handshakeThread = new Thread(() -> {
@@ -77,7 +85,11 @@ public class KissModNetworkHandler {
                     }
                     Minecraft.getInstance().execute(() -> {
                         try {
+                            //? if >=1.21.7 {
+                            /*ClientPacketDistributor.sendToServer(new HandshakeC2SPacket());
+                            *///? } else {
                             PacketDistributor.sendToServer(new HandshakeC2SPacket());
+                            //? }
                         } catch (UnsupportedOperationException ignored) {}
                     });
                 }
@@ -93,7 +105,11 @@ public class KissModNetworkHandler {
                     }
                     Minecraft.getInstance().execute(() -> {
                         try {
+                            //? if >=1.21.7 {
+                            /*ClientPacketDistributor.sendToServer(new HandshakeC2SPacket());
+                            *///? } else {
                             PacketDistributor.sendToServer(new HandshakeC2SPacket());
+                            //? }
                         } catch (UnsupportedOperationException ignored) {}
                     });
                 }
@@ -101,31 +117,33 @@ public class KissModNetworkHandler {
             }
         });handshakeThread.start();
     }
+    //? if >=1.21.1 {
+    /*@EventBusSubscriber(modid = KissMod.MOD_ID, value = Dist.CLIENT)
+    *///? } else {
     @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = KissMod.MOD_ID, value = Dist.CLIENT)
+    //? }
     public static class ModBusEvents {
         @SubscribeEvent
         public static void onRegisterPayloads(RegisterPayloadHandlersEvent event) {
             var registrar = event.registrar(KissMod.MOD_ID).optional();
 
-            registrar.playToClient(KissS2CPacket.TYPE, KissS2CPacket.CODEC, (payload, context) -> {
-                context.enqueueWork(() -> {
-                    if (KissModConfig.debugLogging) {
-                        LOGGER.info("接收到了来自服务器的数据包 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+            registrar.playToClient(KissS2CPacket.TYPE, KissS2CPacket.CODEC, (payload, context) -> context.enqueueWork(() -> {
+                if (KissModConfig.debugLogging) {
+                    LOGGER.info("接收到了来自服务器的数据包 {}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
+                }
+                Minecraft client = Minecraft.getInstance();
+                ClientLevel world = client.level;
+                if (world == null || client.player == null) return;
+                if (!KissModConfig.showOthersKiss) return;
+                if (client.player.getUUID().equals(payload.getWhoPattedUuid())) return;
+                UUID targetUuid = payload.getPattedEntityUuid();
+                for (Entity entity : world.entitiesForRendering()) {
+                    if (entity.getUUID().equals(targetUuid)) {
+                        KissModEffectHandler.triggerEffect(entity, world);
+                        break;
                     }
-                    Minecraft client = Minecraft.getInstance();
-                    ClientLevel world = client.level;
-                    if (world == null || client.player == null) return;
-                    if (!KissModConfig.showOthersKiss) return;
-                    if (client.player.getUUID().equals(payload.getWhoPattedUuid())) return;
-                    UUID targetUuid = payload.getPattedEntityUuid();
-                    for (Entity entity : world.entitiesForRendering()) {
-                        if (entity.getUUID().equals(targetUuid)) {
-                            KissModEffectHandler.triggerEffect(entity, world);
-                            break;
-                        }
-                    }
-                });
-            });
+                }
+            }));
 
             registrar.playToClient(HandshakeS2CPacket.TYPE, HandshakeS2CPacket.CODEC, (payload, context) -> {
                 serverHasMod = true;
@@ -149,7 +167,11 @@ public class KissModNetworkHandler {
             if (KissModConfig.debugLogging) {
                 LOGGER.info("客户端发送数据包{}", LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_TIME));
             }
+            //? if >=1.21.7 {
+            /*ClientPacketDistributor.sendToServer(new KissC2SPacket(target.getUUID(), senderUuid));
+            *///? } else {
             PacketDistributor.sendToServer(new KissC2SPacket(target.getUUID(), senderUuid));
+            //? }
         }
     }
 

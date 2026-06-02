@@ -3,13 +3,18 @@ package com.awa.kissmod.packet;
 import java.util.UUID;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 
 public class KissS2CPacket implements CustomPacketPayload {
-
+    //? if >=1.21.11 {
+    /*public static final Identifier PACKET_ID = Identifier.fromNamespaceAndPath("kiss-mod", "kiss_entity_s2c_packet");
+    *///?} else {
     public static final ResourceLocation PACKET_ID = ResourceLocation.fromNamespaceAndPath("kiss-mod", "kiss_entity_s2c_packet");
-
-
+    //?}
     public static final Type<KissS2CPacket> TYPE = new Type<>(PACKET_ID);
     public static final net.minecraft.network.codec.StreamCodec<RegistryFriendlyByteBuf, KissS2CPacket> CODEC = net.minecraft.network.protocol.common.custom.CustomPacketPayload.codec(KissS2CPacket::write, KissS2CPacket::new);
 

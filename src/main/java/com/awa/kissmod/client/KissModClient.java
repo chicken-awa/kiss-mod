@@ -5,6 +5,13 @@ import com.awa.kissmod.KissModConfig;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+//? if >=1.21.9 {
+    /*//? if >=1.21.11 {
+    /^import net.minecraft.resources.Identifier;
+    ^///?} else {
+    import net.minecraft.resources.ResourceLocation;
+    //?}
+*///?}
 import net.minecraft.util.*;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -32,9 +39,6 @@ public class KissModClient {
     private static long lastRightClickTriggerTime = 0;
     private static final Logger LOGGER = KissMod.LOGGER;
 
-    static {
-        registerKeyBinding();
-    }
 
     public static void init() {
         if (ModList.get().isLoaded("cloth_config")) {
@@ -51,7 +55,11 @@ public class KissModClient {
     @SubscribeEvent
     public static void onRightClickTick(ClientTickEvent.Post event) {
         Minecraft client = Minecraft.getInstance();
+        //? if >=1.21.9 {
+        /*long handle = client.getWindow().handle();
+        *///? } else {
         long handle = client.getWindow().getWindow();
+        //? }
         boolean isRightClickPressed =
                 GLFW.glfwGetMouseButton(handle, GLFW.GLFW_MOUSE_BUTTON_RIGHT) == GLFW.GLFW_PRESS;
         long currentTime = System.currentTimeMillis();
@@ -134,18 +142,34 @@ public class KissModClient {
         }
         wasKeyPressed = isKeyPressed;
     }
+    //? if >=1.21.1 {
+    /*@EventBusSubscriber(modid = KissMod.MOD_ID, value = Dist.CLIENT)
+    *///? } else {
     @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = KissMod.MOD_ID, value = Dist.CLIENT)
+    //? }
     public static class ModBusEvents {
         @SubscribeEvent
         public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
+            //? if >=1.21.9 {
+            /*event.registerCategory(KISS_MOD_CATEGORY);
+            *///?}
             event.register(kissKey);
         }
     }
     //? if >=1.21.9{
-    /*public static final KeyMapping.Category KISS_MOD_CATEGORY = KeyMapping.Category.register(
-            Identifier.fromNamespaceAndPath("kiss-mod", "keybindings")
-    );
+        /*//? if >=1.21.11 {
+        /^public static final KeyMapping.Category KISS_MOD_CATEGORY = new KeyMapping.Category(
+                Identifier.fromNamespaceAndPath("kiss-mod", "keybindings")
+        );
+        ^///?} else {
+        public static final KeyMapping.Category KISS_MOD_CATEGORY = new KeyMapping.Category(
+                ResourceLocation.fromNamespaceAndPath("kiss-mod", "keybindings")
+        );
+        //?}
     *///?}
+    static {
+        registerKeyBinding();
+    }
     private static void registerKeyBinding() {
         kissKey = new KeyMapping(
                 "key.kiss-mod.kiss",
